@@ -1,0 +1,794 @@
+/* ============================================
+   MONEY PAGE V3 - 记账页 V3 设计系统
+   ============================================ */
+
+/* 文字颜色统一 */
+.money-page-v1 .section-kicker-v3,
+.money-center-page .section-kicker-v3 {
+  color: #666666;
+}
+
+.money-page-v1 .section-head-v3 h2,
+.money-page-v1 .panel-v3 h1,
+.money-page-v1 .panel-v3 h2,
+.money-page-v1 .panel-v3 h3,
+.money-center-page .panel-v3 h1,
+.money-center-page .panel-v3 h2,
+.money-center-page .panel-v3 h3 {
+  color: #1A1A1A;
+}
+
+.money-page-v1 .section-subcopy-v3,
+.money-page-v1 .panel-v3 p,
+.money-page-v1 .panel-v3 span,
+.money-center-page .panel-v3 p,
+.money-center-page .panel-v3 span {
+  color: #666666;
+}
+
+.money-page-v1 input,
+.money-page-v1 select,
+.money-center-page input,
+.money-center-page select {
+  color: #1A1A1A;
+  border-color: #E8E8E8;
+  background: #FFFFFF;
+}
+
+.money-page-v1 input::placeholder,
+.money-center-page input::placeholder {
+  color: #999999;
+  opacity: 1;
+}
+
+/* 记账中心页面网格 */
+.money-center-grid .trip-content-card {
+  min-height: 240px;
+}
+
+.money-entry-feed {
+  display: grid;
+  gap: 18px;
+}
+
+/* 记账中心特色卡片 - V3 白底 */
+.money-center-featured {
+  background: #FFFFFF;
+  border: 1px solid #E8E8E8;
+  border-radius: 16px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
+.money-center-featured-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(320px, 0.95fr);
+  gap: 22px;
+  align-items: stretch;
+}
+
+.money-center-featured-copy h2 {
+  margin: 6px 0 10px;
+  color: #1A1A1A;
+  font-size: clamp(1.6rem, 2.2vw, 2.2rem);
+  line-height: 1.08;
+}
+
+.money-featured-subcopy {
+  color: #666666;
+  font-size: 1rem;
+  line-height: 1.72;
+}
+
+.money-entry-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.money-entry-meta span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  padding: 0 12px;
+  border: 1px solid #E8E8E8;
+  border-radius: 16px;
+  background: #F5F7FA;
+  color: #666666;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.money-center-featured-side {
+  display: grid;
+  gap: 16px;
+}
+
+.money-center-mini-stack {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+/* 迷你卡片 - V3 */
+.money-mini-card {
+  position: relative;
+  padding: 16px 18px;
+  border: 1px solid #E8E8E8;
+  border-radius: 14px;
+  background: #FFFFFF;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+  transition: transform 180ms ease, box-shadow 180ms ease;
+}
+
+.money-mini-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 4px;
+  background: #2878FF;
+}
+
+.money-mini-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+.money-mini-card span {
+  display: block;
+  margin-bottom: 8px;
+  color: #999999;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.money-mini-card strong {
+  color: #1A1A1A;
+  font-size: 1.1rem;
+  line-height: 1.5;
+  font-weight: 700;
+}
+
+.money-entry-actions {
+  margin-top: auto;
+}
+
+.money-entry-actions.compact {
+  margin-top: 16px;
+}
+
+.money-entry-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.money-entry-flow-card {
+  padding: 20px;
+}
+
+.money-entry-flow-top {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.85fr);
+  gap: 18px;
+  align-items: start;
+}
+
+.money-entry-flow-status {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.money-entry-flow-status span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 0 12px;
+  border-radius: 16px;
+  background: #F5F7FA;
+  border: 1px solid #E8E8E8;
+  color: #666666;
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.money-entry-flow-body {
+  display: grid;
+  gap: 14px;
+  margin-top: 14px;
+}
+
+.money-entry-flow-copy p {
+  margin: 0;
+  color: #666666;
+  line-height: 1.72;
+}
+
+.trip-content-card strong {
+  color: #1A1A1A;
+  font-size: 1.22rem;
+}
+
+.trip-content-card p {
+  margin: 10px 0 12px;
+  color: #666666;
+}
+
+.trip-content-card .trip-meta-row {
+  margin-top: auto;
+}
+
+/* 预算警告卡片 - V3 */
+.budget-alert {
+  position: relative;
+  border: 1px solid #FFCDD2;
+  border-radius: 14px;
+  background: #FFFFFF;
+  padding: 16px 18px;
+  box-shadow: 0 2px 8px rgba(255, 77, 79, 0.08);
+  overflow: hidden;
+}
+
+.budget-alert::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 4px;
+  background: #FF4D4F;
+}
+
+.budget-alert strong {
+  display: block;
+  color: #C62828;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.budget-alert p {
+  margin-top: 8px;
+  color: #666666;
+  line-height: 1.65;
+}
+
+.budget-advice-panel {
+  border: 1px solid #E8E8E8;
+  border-radius: 14px;
+  background: #FFFFFF;
+  padding: 18px 20px;
+}
+
+.budget-advice-panel h2 {
+  margin: 6px 0 8px;
+  font-size: clamp(1.28rem, 1.7vw, 1.56rem);
+  color: #1A1A1A;
+}
+
+.budget-advice-panel p:last-child {
+  color: #666666;
+  line-height: 1.7;
+}
+
+.budget-advice-panel.tone-red {
+  border-left: 4px solid #FF4D4F;
+}
+
+.budget-advice-panel.tone-amber {
+  border-left: 4px solid #FF9500;
+}
+
+.budget-advice-panel.tone-mint {
+  border-left: 4px solid #00C853;
+}
+
+.budget-advice-panel.tone-blue {
+  border-left: 4px solid #2878FF;
+}
+
+/* 预算分类卡片 */
+.budget-category-card {
+  gap: 10px;
+  position: relative;
+  padding: 14px;
+  border: 1px solid #E8E8E8;
+  border-radius: 14px;
+  background: #FFFFFF;
+  overflow: hidden;
+  transition: transform 180ms ease, box-shadow 180ms ease;
+}
+
+.budget-category-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 4px;
+  background: #2878FF;
+}
+
+.budget-category-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+}
+
+.budget-category-card.is-over {
+  border-color: #FFCDD2;
+}
+
+.budget-category-card.is-over::before {
+  background: #FF4D4F;
+}
+
+.budget-progress-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+  align-items: center;
+  margin-top: 8px;
+}
+
+.budget-progress-row span {
+  color: #666666;
+  font-size: 0.84rem;
+  font-weight: 600;
+}
+
+.budget-progress-row span.is-over {
+  color: #C62828;
+}
+
+.budget-progress-track {
+  overflow: hidden;
+  height: 8px;
+  border-radius: 999px;
+  background: #F0F0F0;
+}
+
+.budget-progress-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: #2878FF;
+  transition: width 300ms ease;
+}
+
+.budget-progress-fill.is-over {
+  background: #FF4D4F;
+}
+
+/* 记账支出面板 */
+.money-expense-panel .participant-selector > span {
+  display: block;
+  color: #1A1A1A;
+  font-size: 0.92rem;
+  font-weight: 700;
+}
+
+.money-filter-bar {
+  margin-top: 14px;
+}
+
+.settlement-copy-tip {
+  margin-top: 16px;
+  padding: 12px 14px;
+  border: 1px solid #E8E8E8;
+  border-radius: 14px;
+  background: #F5F7FA;
+  color: #666666;
+  line-height: 1.65;
+}
+
+.money-page-v1 .positive {
+  color: #00C853;
+}
+
+.money-page-v1 .negative {
+  color: #FF4D4F;
+}
+
+/* 页面布局 */
+.money-page-v1 {
+  display: grid;
+  gap: 20px;
+}
+
+.money-center-page,
+.money-center-grid {
+  display: grid;
+  gap: 20px;
+}
+
+.money-center-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.money-hero,
+.money-budget-panel,
+.money-members-panel,
+.money-expense-panel,
+.money-list-panel,
+.money-settlement-panel {
+  border-radius: 16px;
+}
+
+/* 指标卡片网格 */
+.money-metrics-grid,
+.money-board-grid,
+.budget-category-grid,
+.settlement-balance-grid {
+  display: grid;
+  gap: 16px;
+}
+
+.money-metrics-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.money-board-grid {
+  grid-template-columns: 1.4fr 1fr;
+}
+
+/* 指标卡片 - V3 */
+.money-metric-card,
+.budget-category-card,
+.member-chip-card,
+.expense-item-card,
+.settlement-balance-card,
+.settlement-transfer-card {
+  position: relative;
+  border: 1px solid #E8E8E8;
+  border-radius: 14px;
+  background: #FFFFFF;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+  transition: transform 180ms ease, box-shadow 180ms ease;
+}
+
+.money-metric-card:hover,
+.budget-category-card:hover,
+.member-chip-card:hover,
+.expense-item-card:hover,
+.settlement-balance-card:hover,
+.settlement-transfer-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+.money-metric-card {
+  padding: 18px 18px 16px;
+}
+
+/* 指标卡片左侧彩色条 */
+.money-metric-card::before,
+.budget-category-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 4px;
+}
+
+.money-metric-card.tone-blue::before { background: #2878FF; }
+.money-metric-card.tone-orange::before { background: #FF9500; }
+.money-metric-card.tone-mint::before { background: #00C853; }
+.money-metric-card.tone-coral::before,
+.money-metric-card.tone-pink::before { background: #FF4081; }
+
+.money-metric-card span {
+  display: block;
+  color: #999999;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 8px;
+}
+
+.money-metric-card strong {
+  display: block;
+  margin-top: 8px;
+  color: #1A1A1A;
+  font-size: 1.5rem;
+  font-weight: 800;
+}
+
+.money-metric-card p {
+  margin-top: 8px;
+  color: #666666;
+  font-size: 0.85rem;
+  line-height: 1.6;
+}
+
+/* 表单样式 - V3 */
+.money-form-grid,
+.money-inline-form,
+.money-expense-form {
+  display: grid;
+  gap: 14px;
+}
+
+.money-form-grid {
+  grid-template-columns: minmax(0, 220px);
+  margin-top: 8px;
+}
+
+.field-shell {
+  display: grid;
+  gap: 8px;
+}
+
+.field-shell span,
+.money-expense-form span {
+  color: #666666;
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+
+.field-shell input,
+.money-inline-form input,
+.money-inline-form select,
+.money-expense-form input,
+.money-expense-form select,
+.budget-category-card input {
+  width: 100%;
+  min-height: 52px;
+  border: 1px solid #E8E8E8;
+  border-radius: 16px;
+  background: #FFFFFF;
+  padding: 12px 16px;
+  color: #1A1A1A;
+  font-size: 1rem;
+  transition: border-color 200ms ease, box-shadow 200ms ease;
+}
+
+.field-shell input:focus,
+.money-inline-form input:focus,
+.money-inline-form select:focus,
+.money-expense-form input:focus,
+.money-expense-form select:focus {
+  border-color: #2878FF;
+  box-shadow: 0 0 0 4px rgba(40, 120, 255, 0.1);
+  outline: none;
+}
+
+.field-shell input::placeholder,
+.money-inline-form input::placeholder,
+.money-expense-form input::placeholder {
+  color: #999999;
+}
+
+.budget-category-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-top: 18px;
+}
+
+.budget-category-card {
+  padding: 14px 14px 14px 18px;
+}
+
+.budget-category-card span {
+  display: block;
+  color: #1A1A1A;
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.budget-category-card small {
+  display: block;
+  margin-top: 8px;
+  color: #666666;
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+.money-inline-form {
+  grid-template-columns: 1fr 180px 150px;
+  align-items: end;
+}
+
+.member-chip-grid,
+.money-list-stack,
+.settlement-transfer-list {
+  display: grid;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.member-chip-card,
+.expense-item-card,
+.settlement-transfer-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 16px;
+}
+
+.member-chip-card strong,
+.expense-item-card strong,
+.settlement-balance-card strong,
+.settlement-transfer-card strong {
+  color: #1A1A1A;
+}
+
+.member-chip-card span,
+.expense-item-card p,
+.settlement-balance-card p {
+  color: #666666;
+}
+
+.expense-item-note {
+  margin-top: 6px;
+  color: #999999;
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.money-expense-form {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
+}
+
+.participant-selector {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: 10px;
+}
+
+.settlement-balance-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: 18px;
+}
+
+.settlement-balance-card {
+  padding: 16px;
+}
+
+.settlement-balance-card span {
+  display: inline-flex;
+  margin-top: 8px;
+  font-weight: 700;
+}
+
+.settlement-balance-card .positive {
+  color: #00C853;
+}
+
+.settlement-balance-card .negative {
+  color: #FF4D4F;
+}
+
+.expense-item-side {
+  display: grid;
+  justify-items: end;
+  gap: 8px;
+}
+
+.settlement-transfer-card span {
+  color: #FF9500;
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+@media (max-width: 1100px) {
+  .money-center-grid,
+  .money-metrics-grid,
+  .money-board-grid,
+  .budget-category-grid,
+  .settlement-balance-grid,
+  .money-inline-form,
+  .money-expense-form,
+  .home-money-entry-card,
+  .money-center-hero-v2,
+  .money-center-stat-grid,
+  .money-center-featured-layout,
+  .money-center-mini-stack,
+  .money-entry-flow-top {
+    grid-template-columns: 1fr;
+  }
+
+  .money-entry-flow-status {
+    justify-content: flex-start;
+  }
+}
+
+/* ============================================
+   END MONEY PAGE V3
+   ============================================ */
+
+/* Handbook dark mode refinement */
+.detail-layout-dark {
+  padding: 8px 0 40px;
+}
+
+.detail-layout-dark::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  background:
+    radial-gradient(circle at 12% 14%, rgba(255, 118, 168, 0.16), transparent 20%),
+    radial-gradient(circle at 86% 12%, rgba(97, 170, 255, 0.12), transparent 18%),
+    radial-gradient(circle at 50% 100%, rgba(255, 187, 78, 0.08), transparent 22%),
+    linear-gradient(180deg, #111722 0%, #0b1018 100%);
+}
+
+.detail-layout-dark .handbook-layout-v4,
+.detail-layout-dark .handbook-feature-grid {
+  gap: 20px;
+}
+
+.detail-layout-dark .handbook-cover-v5,
+.detail-layout-dark .handbook-module,
+.detail-layout-dark .handbook-focus-board,
+.detail-layout-dark .handbook-score-card,
+.detail-layout-dark .share-banner-v4,
+.detail-layout-dark .success-banner-inner {
+  border-color: rgba(126, 147, 178, 0.22);
+  background:
+    linear-gradient(180deg, rgba(20, 28, 40, 0.94), rgba(13, 19, 29, 0.96)),
+    linear-gradient(135deg, rgba(255, 119, 168, 0.06), rgba(97, 170, 255, 0.05));
+  box-shadow:
+    0 24px 44px rgba(0, 0, 0, 0.34),
+    inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+
+.detail-layout-dark .handbook-cover-v5 {
+  background:
+    radial-gradient(circle at 12% 18%, rgba(255, 119, 168, 0.1), transparent 18%),
+    radial-gradient(circle at 86% 14%, rgba(97, 170, 255, 0.08), transparent 18%),
+    linear-gradient(180deg, rgba(18, 25, 36, 0.98), rgba(12, 18, 28, 0.98));
+}
+
+.detail-layout-dark .section-kicker-v3,
+.detail-layout-dark .caption,
+.detail-layout-dark .muted,
+.detail-layout-dark .score-summary,
+.detail-layout-dark .handbook-cover-subcopy,
+.detail-layout-dark .timeline-card p,
+.detail-layout-dark .venue-source-link span,
+.detail-layout-dark .handbook-cover-note p,
+.detail-layout-dark .handbook-mini-glass-card p,
+.detail-layout-dark .risk-card p,
+.detail-layout-dark .support-card li,
+.detail-layout-dark .check-card li,
+.detail-layout-dark .venue-rule-card li,
+.detail-layout-dark .fan-focus-card p {
+  color: rgba(224, 232, 245, 0.76);
+}
+
+.detail-layout-dark h1,
+.detail-layout-dark h2,
+.detail-layout-dark h4,
+.detail-layout-dark strong,
+.detail-layout-dark .score-value,
+.detail-layout-dark .score-overview h2,
+.detail-layout-dark .risk-card strong,
+.detail-layout-dark .seat-summary-card strong,
+.detail-layout-dark .handbook-mini-glass-card strong,
+.detail-layout-dark .handbook-cover-note strong,
+.detail-layout-dark .fan-focus-card strong,
+.detail-layout-dark .timeline-meta strong,
+.detail-layout-dark .timeline-card h4,
+.detail-layout-dark .venue-source-link strong {
+  color: #f6f8fc;
+}
+
+.detail-layout-dark .handbook-meta-pill,
+.detail-layout-dark .handbook-memory-pill,
+.detail-layout-dark .venue-rule-chip,
+.detail-layout-dark .risk-pill,
+.detail-layout-dark .score-pill {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: #f6f8fc;
+}
+

@@ -1,0 +1,1002 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>一站式赴约小管家 - 产品演示稿</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=Noto+Sans+SC:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* ===========================================
+           THEME TOKENS
+           Romantic bright product-showcase system
+           =========================================== */
+        :root {
+            --stage-bg: #fff6f0;
+            --slide-bg: #fffaf7;
+            --paper: #fffdfa;
+            --ink: #241a38;
+            --muted: #7e748d;
+            --soft-line: rgba(93, 66, 118, 0.12);
+            --rose: #ff8cab;
+            --peach: #ffbe76;
+            --lavender: #c6a8ff;
+            --mint: #9fe1cc;
+            --gold: #f5d782;
+            --shadow: 0 28px 80px rgba(125, 98, 150, 0.14);
+            --font-display: "Manrope", "Noto Sans SC", sans-serif;
+            --font-body: "Noto Sans SC", "Manrope", sans-serif;
+            --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+            --duration-normal: 0.72s;
+        }
+
+        /* ===========================================
+           FIXED 16:9 STAGE: MANDATORY BASE STYLES
+           Include this ENTIRE file in every presentation.
+           Slides are authored at 1920x1080 and scaled as a whole.
+           =========================================== */
+
+        /* 1. Lock the browser viewport */
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            overflow: hidden;
+            background: var(--stage-bg, #000);
+        }
+
+        /* 2. Full-window deck viewport */
+        .deck-viewport {
+            position: fixed;
+            inset: 0;
+            overflow: hidden;
+            background:
+                radial-gradient(circle at top left, rgba(255, 197, 212, 0.7), transparent 22%),
+                radial-gradient(circle at top right, rgba(198, 168, 255, 0.5), transparent 28%),
+                linear-gradient(180deg, #fff7f2 0%, #fffafb 52%, #fffefb 100%);
+        }
+
+        /* 3. Fixed 16:9 design canvas.
+           JavaScript sets transform: translate(...) scale(...). */
+        .deck-stage {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 1920px;
+            height: 1080px;
+            overflow: hidden;
+            transform-origin: 0 0;
+            background: transparent;
+        }
+
+        /* 4. Slides stack inside the fixed stage.
+           Content must be laid out at 1920x1080, not reflowed per device. */
+        .slide {
+            position: absolute;
+            inset: 0;
+            width: 1920px;
+            height: 1080px;
+            overflow: hidden;
+            display: block;
+            visibility: hidden;
+            opacity: 0;
+            pointer-events: none;
+            background: transparent;
+        }
+
+        .slide.active,
+        .slide.visible {
+            visibility: visible;
+            opacity: 1;
+            pointer-events: auto;
+            z-index: 1;
+        }
+
+        /* 5. Keep media inside authored slide bounds */
+        img,
+        video,
+        canvas,
+        svg {
+            max-width: 100%;
+            max-height: 100%;
+        }
+
+        /* 6. Presentation chrome stays outside the slide design system */
+        .deck-controls {
+            position: fixed;
+            left: 50%;
+            bottom: 22px;
+            transform: translateX(-50%);
+            z-index: 1000;
+        }
+
+        /* 7. Print one fixed-size slide per page */
+        @media print {
+            html,
+            body {
+                width: 1920px;
+                height: auto;
+                overflow: visible;
+                background: #fff;
+            }
+
+            .deck-viewport {
+                position: static;
+                overflow: visible;
+                background: #fff;
+            }
+
+            .deck-stage {
+                position: static;
+                width: auto;
+                height: auto;
+                transform: none !important;
+                background: none;
+            }
+
+            .slide {
+                position: relative;
+                display: block !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+                pointer-events: auto !important;
+                width: 1920px;
+                height: 1080px;
+                break-after: page;
+                page-break-after: always;
+            }
+
+            .slide:last-child {
+                break-after: auto;
+                page-break-after: auto;
+            }
+
+            .deck-controls {
+                display: none !important;
+            }
+        }
+
+        /* 8. Reduced motion */
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.2s !important;
+            }
+        }
+
+        /* ===========================================
+           BASE LAYOUT AND TYPOGRAPHY
+           Presentation-specific visual system
+           =========================================== */
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-body);
+            color: var(--ink);
+        }
+
+        .slide-shell {
+            position: absolute;
+            inset: 36px;
+            border-radius: 40px;
+            background:
+                radial-gradient(circle at top left, rgba(255, 255, 255, 0.9), transparent 32%),
+                linear-gradient(145deg, rgba(255, 253, 250, 0.95), rgba(255, 247, 251, 0.92));
+            border: 1px solid rgba(255, 255, 255, 0.72);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .slide-shell::after {
+            content: "";
+            position: absolute;
+            inset: auto -120px -150px auto;
+            width: 380px;
+            height: 380px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255, 140, 171, 0.24), transparent 68%);
+        }
+
+        .slide-grid {
+            position: relative;
+            z-index: 1;
+            display: grid;
+            height: 100%;
+            padding: 72px 82px;
+            gap: 28px;
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 16px;
+            border-radius: 999px;
+            border: 1px solid rgba(255, 255, 255, 0.92);
+            background: rgba(255, 255, 255, 0.78);
+            box-shadow: 0 10px 30px rgba(144, 120, 164, 0.08);
+            color: #8c6b8d;
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+        }
+
+        .title {
+            margin: 0;
+            font-family: var(--font-display);
+            font-size: 104px;
+            line-height: 0.94;
+            letter-spacing: -0.06em;
+            font-weight: 800;
+            color: var(--ink);
+            text-wrap: pretty;
+        }
+
+        .title .accent {
+            background: linear-gradient(135deg, var(--rose), var(--lavender));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .subtitle {
+            margin: 0;
+            max-width: 860px;
+            font-size: 30px;
+            line-height: 1.7;
+            color: var(--muted);
+            text-wrap: pretty;
+        }
+
+        .section-title {
+            margin: 0;
+            font-size: 56px;
+            line-height: 1.06;
+            letter-spacing: -0.04em;
+            font-weight: 800;
+        }
+
+        .section-copy {
+            margin: 0;
+            font-size: 24px;
+            line-height: 1.7;
+            color: var(--muted);
+            text-wrap: pretty;
+        }
+
+        .slide-number {
+            position: absolute;
+            right: 80px;
+            top: 64px;
+            font-family: var(--font-display);
+            font-size: 28px;
+            font-weight: 800;
+            color: rgba(49, 31, 66, 0.36);
+            letter-spacing: 0.08em;
+        }
+
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition:
+                opacity var(--duration-normal) var(--ease-out-expo),
+                transform var(--duration-normal) var(--ease-out-expo);
+        }
+
+        .slide.visible .reveal {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .reveal:nth-child(1) { transition-delay: 0.08s; }
+        .reveal:nth-child(2) { transition-delay: 0.16s; }
+        .reveal:nth-child(3) { transition-delay: 0.24s; }
+        .reveal:nth-child(4) { transition-delay: 0.32s; }
+        .reveal:nth-child(5) { transition-delay: 0.4s; }
+
+        /* ===========================================
+           TITLE SLIDE
+           Hero layout with emotional headline
+           =========================================== */
+        .title-layout {
+            grid-template-columns: 1.14fr 0.86fr;
+            align-items: stretch;
+        }
+
+        .hero-panel {
+            display: grid;
+            align-content: space-between;
+            padding-right: 18px;
+        }
+
+        .hero-info {
+            display: grid;
+            gap: 24px;
+            align-content: start;
+        }
+
+        .hero-pills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .hero-pills span,
+        .mini-chip {
+            padding: 11px 16px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.82);
+            border: 1px solid rgba(128, 105, 152, 0.14);
+            color: #655a73;
+            font-size: 20px;
+            box-shadow: 0 10px 24px rgba(145, 121, 160, 0.08);
+        }
+
+        .hero-card {
+            position: relative;
+            border-radius: 34px;
+            overflow: hidden;
+            background:
+                linear-gradient(180deg, rgba(25, 17, 41, 0.08), rgba(25, 17, 41, 0.48)),
+                url('./yueyue-client/public/hero-concert.jpg') center / cover no-repeat;
+            min-height: 100%;
+        }
+
+        .hero-card::before,
+        .hero-card::after {
+            content: "";
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(1px);
+        }
+
+        .hero-card::before {
+            width: 300px;
+            height: 300px;
+            top: -30px;
+            right: -10px;
+            background: radial-gradient(circle, rgba(255, 212, 120, 0.55), transparent 68%);
+        }
+
+        .hero-card::after {
+            width: 260px;
+            height: 260px;
+            left: -20px;
+            bottom: -20px;
+            background: radial-gradient(circle, rgba(255, 140, 171, 0.4), transparent 70%);
+        }
+
+        .hero-card-copy {
+            position: absolute;
+            left: 28px;
+            right: 28px;
+            bottom: 28px;
+            padding: 26px 28px;
+            border-radius: 28px;
+            background: rgba(24, 16, 40, 0.42);
+            backdrop-filter: blur(16px);
+            color: #fff;
+        }
+
+        .hero-card-copy strong {
+            display: block;
+            font-size: 42px;
+            line-height: 1.05;
+            letter-spacing: -0.04em;
+        }
+
+        .hero-card-copy p {
+            margin: 14px 0 0;
+            font-size: 22px;
+            line-height: 1.6;
+            color: rgba(255, 255, 255, 0.82);
+        }
+
+        /* ===========================================
+           GRID CARDS
+           Reusable card layouts for mid-deck slides
+           =========================================== */
+        .cards-3,
+        .cards-2,
+        .cards-4 {
+            display: grid;
+            gap: 18px;
+        }
+
+        .cards-3 { grid-template-columns: repeat(3, 1fr); }
+        .cards-2 { grid-template-columns: repeat(2, 1fr); }
+        .cards-4 { grid-template-columns: repeat(4, 1fr); }
+
+        .card {
+            padding: 28px;
+            border-radius: 28px;
+            background: rgba(255, 255, 255, 0.84);
+            border: 1px solid rgba(130, 104, 150, 0.12);
+            box-shadow: 0 14px 34px rgba(148, 125, 161, 0.1);
+        }
+
+        .card h3,
+        .metric-card strong,
+        .rule-card strong {
+            margin: 0;
+            display: block;
+            font-size: 34px;
+            line-height: 1.15;
+            letter-spacing: -0.03em;
+            color: var(--ink);
+        }
+
+        .card p,
+        .metric-card p,
+        .rule-card p {
+            margin: 12px 0 0;
+            font-size: 22px;
+            line-height: 1.7;
+            color: var(--muted);
+        }
+
+        .card ul,
+        .rule-card ul {
+            margin: 16px 0 0;
+            padding-left: 22px;
+            color: var(--muted);
+            font-size: 21px;
+            line-height: 1.75;
+        }
+
+        .card.pink { background: linear-gradient(160deg, #fff3f7, #fffdfa); }
+        .card.gold { background: linear-gradient(160deg, #fff8ea, #fffdfa); }
+        .card.mint { background: linear-gradient(160deg, #f3fff9, #fffdfa); }
+        .card.lavender { background: linear-gradient(160deg, #f7f3ff, #fffdfa); }
+
+        /* ===========================================
+           FLOW SLIDE
+           Product path and experience sequence
+           =========================================== */
+        .flow-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 18px;
+            align-items: start;
+        }
+
+        .flow-step {
+            position: relative;
+            padding: 26px 24px 28px;
+            border-radius: 28px;
+            background: rgba(255, 255, 255, 0.88);
+            border: 1px solid rgba(126, 102, 149, 0.12);
+            box-shadow: 0 12px 28px rgba(145, 123, 159, 0.08);
+        }
+
+        .flow-step::after {
+            content: "→";
+            position: absolute;
+            top: 38px;
+            right: -18px;
+            width: 36px;
+            height: 36px;
+            display: grid;
+            place-items: center;
+            border-radius: 50%;
+            background: #fff;
+            color: #c78571;
+            border: 1px solid rgba(144, 120, 160, 0.14);
+            box-shadow: 0 10px 24px rgba(145, 123, 159, 0.08);
+        }
+
+        .flow-step:last-child::after {
+            display: none;
+        }
+
+        .step-index {
+            display: inline-flex;
+            margin-bottom: 18px;
+            padding: 8px 12px;
+            border-radius: 999px;
+            background: rgba(255, 140, 171, 0.12);
+            color: #c85d8b;
+            font-size: 18px;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+        }
+
+        /* ===========================================
+           METRICS AND RULES
+           Progress / data oriented layouts
+           =========================================== */
+        .metrics-wrap {
+            display: grid;
+            grid-template-columns: 0.9fr 1.1fr;
+            gap: 22px;
+        }
+
+        .metric-card,
+        .rule-card {
+            padding: 30px;
+            border-radius: 30px;
+            background: rgba(255, 255, 255, 0.88);
+            border: 1px solid rgba(130, 104, 150, 0.12);
+            box-shadow: 0 16px 38px rgba(145, 123, 159, 0.1);
+        }
+
+        .metric-stack {
+            display: grid;
+            gap: 16px;
+            margin-top: 22px;
+        }
+
+        .metric-pill {
+            display: flex;
+            justify-content: space-between;
+            gap: 14px;
+            align-items: center;
+            padding: 16px 18px;
+            border-radius: 20px;
+            background: linear-gradient(135deg, #fff5f8, #fffefb);
+            border: 1px solid rgba(130, 104, 150, 0.1);
+            font-size: 21px;
+            color: #5f546d;
+        }
+
+        .metric-pill b {
+            color: var(--ink);
+        }
+
+        .sources {
+            display: grid;
+            gap: 12px;
+            margin-top: 18px;
+        }
+
+        .source-link {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            padding: 16px 18px;
+            border-radius: 18px;
+            background: rgba(255, 255, 255, 0.92);
+            border: 1px solid rgba(130, 104, 150, 0.1);
+            color: #63586f;
+            text-decoration: none;
+            font-size: 19px;
+        }
+
+        .source-link strong {
+            font-size: 22px;
+            color: var(--ink);
+        }
+
+        /* ===========================================
+           CLOSING SLIDE
+           Big CTA and next-step structure
+           =========================================== */
+        .closing-layout {
+            grid-template-columns: 1.06fr 0.94fr;
+            align-items: center;
+        }
+
+        .cta-block {
+            display: grid;
+            gap: 20px;
+            align-content: center;
+        }
+
+        .cta-panel {
+            padding: 30px;
+            border-radius: 30px;
+            background:
+                radial-gradient(circle at top right, rgba(255, 215, 130, 0.36), transparent 25%),
+                linear-gradient(150deg, rgba(255, 255, 255, 0.92), rgba(255, 245, 248, 0.92));
+            border: 1px solid rgba(126, 102, 149, 0.12);
+            box-shadow: 0 18px 44px rgba(145, 123, 159, 0.1);
+        }
+
+        .cta-panel ol {
+            margin: 18px 0 0;
+            padding-left: 24px;
+            font-size: 23px;
+            line-height: 1.8;
+            color: #5e546b;
+        }
+
+        .floating-badges {
+            display: grid;
+            gap: 18px;
+        }
+
+        .floating-badge {
+            padding: 22px 24px;
+            border-radius: 24px;
+            font-size: 26px;
+            line-height: 1.45;
+            color: var(--ink);
+            border: 1px solid rgba(126, 102, 149, 0.12);
+            box-shadow: 0 16px 36px rgba(145, 123, 159, 0.08);
+        }
+
+        .floating-badge:nth-child(1) {
+            background: linear-gradient(135deg, #fff4f7, #fffefa);
+            transform: rotate(-2deg);
+        }
+
+        .floating-badge:nth-child(2) {
+            background: linear-gradient(135deg, #fff9eb, #fffefa);
+            transform: rotate(1.4deg);
+        }
+
+        .floating-badge:nth-child(3) {
+            background: linear-gradient(135deg, #f1fff8, #fffefa);
+            transform: rotate(-1deg);
+        }
+
+        /* ===========================================
+           DECK CONTROLS
+           Progress and page counter
+           =========================================== */
+        .deck-controls {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 10px 16px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.86);
+            border: 1px solid rgba(126, 102, 149, 0.12);
+            box-shadow: 0 10px 26px rgba(145, 123, 159, 0.12);
+            color: #5c5068;
+            font-family: var(--font-body);
+        }
+
+        .progress-track {
+            width: 240px;
+            height: 8px;
+            border-radius: 999px;
+            background: rgba(126, 102, 149, 0.12);
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            width: 0%;
+            height: 100%;
+            border-radius: 999px;
+            background: linear-gradient(135deg, var(--rose), var(--lavender), var(--peach));
+            transition: width 280ms ease;
+        }
+
+        .page-count {
+            min-width: 72px;
+            text-align: center;
+            font-size: 17px;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+        }
+    </style>
+</head>
+<body>
+    <div class="deck-viewport">
+        <main class="deck-stage" id="deckStage">
+            <!-- ===========================================
+                 Slide 1 - Title
+                 Product overview hero
+                 =========================================== -->
+            <section class="slide active visible" data-screen-label="01 Title">
+                <div class="slide-shell">
+                    <div class="slide-number reveal">01 / 06</div>
+                    <div class="slide-grid title-layout">
+                        <div class="hero-panel">
+                            <div class="hero-info">
+                                <div class="eyebrow reveal">一站式赴约小管家 · 当前产品状态</div>
+                                <h1 class="title reveal">
+                                    把一场见面
+                                    <span class="accent">安排得更浪漫</span>
+                                    也更安心
+                                </h1>
+                                <p class="subtitle reveal">
+                                    这不是冷冰冰的“活动工具”，而是一套围绕演唱会、音乐节和球赛赴约打造的 AI 安排系统。它负责把期待、路线、提醒和当天节奏都整理得顺一点。
+                                </p>
+                            </div>
+                            <div class="hero-pills reveal">
+                                <span>演唱会 / 音乐节 / 球赛</span>
+                                <span>AI 生成赴约手册</span>
+                                <span>场馆规则已接入</span>
+                            </div>
+                        </div>
+
+                        <div class="hero-card reveal">
+                            <div class="hero-card-copy">
+                                <div class="eyebrow">现在已经能做什么</div>
+                                <strong>首页、创建页、赴约手册、分享页与真实规则命中，已经跑通。</strong>
+                                <p>视觉层已经切到明亮浪漫方向，内容层也开始接官方场馆规则，不再只靠模型自由发挥。</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ===========================================
+                 Slide 2 - Product positioning
+                 Value proposition cards
+                 =========================================== -->
+            <section class="slide" data-screen-label="02 Positioning">
+                <div class="slide-shell">
+                    <div class="slide-number reveal">02 / 06</div>
+                    <div class="slide-grid">
+                        <div class="eyebrow reveal">产品定位</div>
+                        <h2 class="section-title reveal">从“作战感”切回“赴约感”，这是这款产品最重要的一次调整。</h2>
+                        <p class="section-copy reveal">
+                            用户不是来打仗的，而是来认真安排一场期待已久的见面。于是产品语言和体验都从“作战书 / 指挥中心”切成了“赴约手册 / 提前提醒你 / 今天这样去最顺”。
+                        </p>
+
+                        <div class="cards-3">
+                            <article class="card pink reveal">
+                                <h3>期待感</h3>
+                                <p>用更像旅行规划的方式承接用户情绪，不再把浪漫的事做成后台系统。</p>
+                            </article>
+                            <article class="card gold reveal">
+                                <h3>安心感</h3>
+                                <p>把最容易翻车的环节提前指出来，让用户出发前知道哪些事必须先想好。</p>
+                            </article>
+                            <article class="card mint reveal">
+                                <h3>陪伴感</h3>
+                                <p>不只是给一堆信息，而是给一份能真正带着走的赴约安排。</p>
+                            </article>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ===========================================
+                 Slide 3 - Experience flow
+                 Journey sequence
+                 =========================================== -->
+            <section class="slide" data-screen-label="03 Flow">
+                <div class="slide-shell">
+                    <div class="slide-number reveal">03 / 06</div>
+                    <div class="slide-grid">
+                        <div class="eyebrow reveal">体验闭环</div>
+                        <h2 class="section-title reveal">当前主链路已经清楚了：从创建计划到当天执行，都有落点。</h2>
+                        <div class="flow-row">
+                            <article class="flow-step reveal">
+                                <div class="step-index">STEP 01</div>
+                                <strong>创建赴约计划</strong>
+                                <p>用户告诉系统活动类型、场馆、日期、返程压力和最在意的点。</p>
+                            </article>
+                            <article class="flow-step reveal">
+                                <div class="step-index">STEP 02</div>
+                                <strong>AI 生成赴约手册</strong>
+                                <p>把评分、风险、时间线、清单和提醒都整理成一份结构化结果页。</p>
+                            </article>
+                            <article class="flow-step reveal">
+                                <div class="step-index">STEP 03</div>
+                                <strong>命中场馆规则</strong>
+                                <p>若识别到支持的场馆，优先带入官方禁带、交通、入场与寄存规则。</p>
+                            </article>
+                            <article class="flow-step reveal">
+                                <div class="step-index">STEP 04</div>
+                                <strong>出发前翻看与分享</strong>
+                                <p>用户可以在我的安排里回看，也能把分享页发给同行的人一起确认。</p>
+                            </article>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ===========================================
+                 Slide 4 - UI and structure
+                 Frontend system summary
+                 =========================================== -->
+            <section class="slide" data-screen-label="04 UI System">
+                <div class="slide-shell">
+                    <div class="slide-number reveal">04 / 06</div>
+                    <div class="slide-grid">
+                        <div class="eyebrow reveal">视觉系统</div>
+                        <h2 class="section-title reveal">前端现在已经不再是“暗、硬、工具味重”的状态，而是更像明亮的旅行平台。</h2>
+                        <div class="cards-2">
+                            <article class="card lavender reveal">
+                                <h3>首页</h3>
+                                <ul>
+                                    <li>横向铺满，左侧双板块导航</li>
+                                    <li>现场氛围轮播与强入口规划卡</li>
+                                    <li>文字层级、按钮与卡片动效已统一</li>
+                                </ul>
+                            </article>
+                            <article class="card mint reveal">
+                                <h3>创建页与手册页</h3>
+                                <ul>
+                                    <li>宽屏分区表单，减少工具后台感</li>
+                                    <li>赴约手册结构已经统一为浅色卡片系统</li>
+                                    <li>分享页与我的安排页也跟着同一套视觉走</li>
+                                </ul>
+                            </article>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ===========================================
+                 Slide 5 - Venue rules
+                 Real data and official-source layer
+                 =========================================== -->
+            <section class="slide" data-screen-label="05 Rules Engine">
+                <div class="slide-shell">
+                    <div class="slide-number reveal">05 / 06</div>
+                    <div class="slide-grid">
+                        <div class="eyebrow reveal">真实规则数据</div>
+                        <h2 class="section-title reveal">内容层已经开始跟上视觉层：首批官方场馆规则库已接入生成链路。</h2>
+                        <div class="metrics-wrap">
+                            <article class="metric-card reveal">
+                                <strong>当前命中逻辑</strong>
+                                <p>根据城市、场馆名和场景类型做匹配，命中后把规则摘要、禁带、交通、寄存和来源一起塞进 AI 提示词。</p>
+                                <div class="metric-stack">
+                                    <div class="metric-pill"><span>首批支持场馆</span><b>2 个</b></div>
+                                    <div class="metric-pill"><span>核验日期</span><b>2026-06-04</b></div>
+                                    <div class="metric-pill"><span>页面展示</span><b>手册页已可见</b></div>
+                                </div>
+                            </article>
+
+                            <article class="rule-card reveal">
+                                <strong>已接入来源</strong>
+                                <p>这一步的价值不是“堆资料”，而是让用户看到每条高风险提醒都更像真的场馆要求，而不是模型随口猜。</p>
+                                <div class="sources">
+                                    <a class="source-link" href="https://www.mercedes-benzarena.com/faq.html" target="_blank" rel="noreferrer">
+                                        <strong>梅赛德斯-奔驰文化中心 FAQ</strong>
+                                        <span>上海</span>
+                                    </a>
+                                    <a class="source-link" href="https://www.mercedes-benzarena.com/TrafficGuide/" target="_blank" rel="noreferrer">
+                                        <strong>梅赛德斯-奔驰文化中心 服务指南</strong>
+                                        <span>上海</span>
+                                    </a>
+                                    <a class="source-link" href="https://wks.bloomagelive.com/live/normal.html?id=27" target="_blank" rel="noreferrer">
+                                        <strong>华熙LIVE·五棵松 观众服务</strong>
+                                        <span>北京</span>
+                                    </a>
+                                </div>
+                            </article>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ===========================================
+                 Slide 6 - Next steps
+                 Delivery and roadmap
+                 =========================================== -->
+            <section class="slide" data-screen-label="06 Next">
+                <div class="slide-shell">
+                    <div class="slide-number reveal">06 / 06</div>
+                    <div class="slide-grid closing-layout">
+                        <div class="cta-block">
+                            <div class="eyebrow reveal">下一步怎么继续</div>
+                            <h2 class="section-title reveal">这份演示稿只是试运行，真正有价值的是它能被直接拿来讲下一阶段计划。</h2>
+                            <div class="cta-panel reveal">
+                                <strong style="font-size: 36px; display: block; margin: 0; color: var(--ink);">建议的开发顺序</strong>
+                                <ol>
+                                    <li>继续扩重点城市和高频场馆的规则库</li>
+                                    <li>把规则命中前置到创建页，提前提示用户</li>
+                                    <li>继续提升赴约手册当天可执行性与现场陪伴感</li>
+                                </ol>
+                            </div>
+                        </div>
+
+                        <div class="floating-badges">
+                            <div class="floating-badge reveal">如果这个 skill 继续用下去，它很适合做产品汇报、阶段复盘和路演版网页演示稿。</div>
+                            <div class="floating-badge reveal">它更像“浏览器里的高级讲稿”，不是普通 PPT，也不依赖前端构建链。</div>
+                            <div class="floating-badge reveal">下一轮我可以直接用它给你做“对外介绍版”或“投资人版本”的完整演示稿。</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <div class="deck-controls" aria-label="演示文稿进度">
+        <span class="page-count" id="pageCount">01 / 06</span>
+        <div class="progress-track"><div class="progress-bar" id="progressBar"></div></div>
+    </div>
+
+    <script>
+        /* ===========================================
+           SLIDE PRESENTATION CONTROLLER
+           Fixed-stage navigation and scaling
+           =========================================== */
+        class SlidePresentation {
+            constructor() {
+                this.slides = Array.from(document.querySelectorAll('.slide'));
+                this.currentSlide = 0;
+                this.stage = document.getElementById('deckStage');
+                this.progressBar = document.getElementById('progressBar');
+                this.pageCount = document.getElementById('pageCount');
+                this.touchStartX = 0;
+                this.touchEndX = 0;
+                this.setupStageScale();
+                this.setupKeyboardNav();
+                this.setupWheelNav();
+                this.setupTouchNav();
+                this.showSlide(0);
+            }
+
+            setupStageScale() {
+                const scaleStage = () => {
+                    const factor = Math.min(window.innerWidth / 1920, window.innerHeight / 1080);
+                    const x = (window.innerWidth - 1920 * factor) / 2;
+                    const y = (window.innerHeight - 1080 * factor) / 2;
+                    this.stage.style.transform = `translate(${x}px, ${y}px) scale(${factor})`;
+                };
+
+                scaleStage();
+                window.addEventListener('resize', scaleStage);
+            }
+
+            setupKeyboardNav() {
+                document.addEventListener('keydown', (event) => {
+                    if (['ArrowRight', 'ArrowDown', 'PageDown', ' '].includes(event.key)) {
+                        event.preventDefault();
+                        this.next();
+                    }
+                    if (['ArrowLeft', 'ArrowUp', 'PageUp'].includes(event.key)) {
+                        event.preventDefault();
+                        this.prev();
+                    }
+                    if (event.key === 'Home') this.showSlide(0);
+                    if (event.key === 'End') this.showSlide(this.slides.length - 1);
+                });
+            }
+
+            setupWheelNav() {
+                let wheelLock = false;
+                window.addEventListener('wheel', (event) => {
+                    if (wheelLock) return;
+                    wheelLock = true;
+                    window.setTimeout(() => { wheelLock = false; }, 500);
+                    if (event.deltaY > 0) this.next();
+                    if (event.deltaY < 0) this.prev();
+                }, { passive: true });
+            }
+
+            setupTouchNav() {
+                window.addEventListener('touchstart', (event) => {
+                    this.touchStartX = event.changedTouches[0].screenX;
+                }, { passive: true });
+
+                window.addEventListener('touchend', (event) => {
+                    this.touchEndX = event.changedTouches[0].screenX;
+                    const delta = this.touchEndX - this.touchStartX;
+                    if (Math.abs(delta) < 60) return;
+                    if (delta < 0) this.next();
+                    if (delta > 0) this.prev();
+                }, { passive: true });
+            }
+
+            showSlide(index) {
+                this.currentSlide = Math.max(0, Math.min(index, this.slides.length - 1));
+                this.slides.forEach((slide, i) => {
+                    slide.classList.toggle('active', i === this.currentSlide);
+                    slide.classList.toggle('visible', i === this.currentSlide);
+                });
+
+                const current = this.currentSlide + 1;
+                const total = this.slides.length;
+                this.pageCount.textContent = `${String(current).padStart(2, '0')} / ${String(total).padStart(2, '0')}`;
+                this.progressBar.style.width = `${(current / total) * 100}%`;
+            }
+
+            next() {
+                this.showSlide(this.currentSlide + 1);
+            }
+
+            prev() {
+                this.showSlide(this.currentSlide - 1);
+            }
+        }
+
+        new SlidePresentation();
+    </script>
+</body>
+</html>

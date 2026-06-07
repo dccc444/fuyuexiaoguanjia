@@ -1,0 +1,22 @@
+{
+  "name": "yueyue-server",
+  "version": "1.0.0",
+  "description": "Stage 1 API skeleton for Yueyue Butler",
+  "main": "src/server.js",
+  "scripts": {
+    "dev": "node src/server.js",
+    "start": "node src/server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "nanoid": "^5.1.11",
+    "openai": "^6.42.0",
+    "pg": "^8.16.3"
+  }
+}
