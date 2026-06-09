@@ -19,8 +19,24 @@
 }
 
 .generation-loading-overlay {
-  position: fixed;
-  inset: 0;
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 2147483000;
+  display: grid;
+  place-items: center;
+  width: 100vw;
+  min-height: 100vh;
+  padding: 24px;
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(10px);
+}
+
+.generation-loading-overlay .loading-card {
+  width: min(420px, calc(100vw - 48px));
+  max-width: none;
+  margin: 0;
+  text-align: center;
+  box-shadow: 0 24px 70px rgba(42, 35, 64, 0.18);
 }
 
 .planner-rail {
