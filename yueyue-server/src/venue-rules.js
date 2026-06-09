@@ -1100,6 +1100,76 @@ const venueRules = [
       },
     ],
   },
+  {
+    venueId: 'shanghai-oriental-sports-center',
+    venueName: '上海东方体育中心',
+    city: '上海',
+    aliases: ['上海东方体育中心', '东方体育中心', '海上王冠'],
+    scenes: ['concert', 'match'],
+    summary: '上海高频大型演艺场馆，建议优先选择轨交出行。',
+    entryTips: ['演出日客流较大，请预留充足的安检时间。', '请提前准备好购票时的实名身份证件。', '场馆周边停车资源有限，建议绿色出行。'],
+    prohibitedItems: ['未携带实名证件', '临近开场再寻找停车位'],
+    allowedOrConditional: ['以主办方当次公告为准。'],
+    transport: { publicTransport: '优先地铁出行，可乘坐6号线、8号线或11号线直达。', parking: '场馆周边停车资源紧张。'},
+    sourceNote: '上海东方体育中心公开信息',
+    sources: []
+  },
+  {
+    venueId: 'beijing-national-indoor-stadium',
+    venueName: '国家体育馆',
+    city: '北京',
+    aliases: ['国家体育馆', '折扇'],
+    scenes: ['concert', 'match'],
+    summary: '北京奥林匹克公园内重要场馆，建议提早到场。',
+    entryTips: ['确认场馆位置，避免与周边其他场馆混淆。', '建议提早到场，为安检和检票留足时间。', '优先公共交通。'],
+    prohibitedItems: ['未带证件', '未核对场馆位置'],
+    allowedOrConditional: ['以主办方公告为准。'],
+    transport: { publicTransport: '优先地铁和步行接驳。', parking: '奥林匹克公园周边停车受限。'},
+    sourceNote: '国家体育馆公开信息',
+    sources: []
+  },
+  {
+    venueId: 'hangzhou-huanglong-sports-centre',
+    venueName: '黄龙体育中心体育场',
+    city: '杭州',
+    aliases: ['黄龙体育中心体育场', '黄龙体育场', '黄龙体育中心'],
+    scenes: ['concert', 'match'],
+    summary: '杭州核心赛演场馆，建议提早到场并选择公共交通。',
+    entryTips: ['市中心场馆，演出日周边容易拥堵。', '请提前准备好实名证件。', '优先地铁出行。'],
+    prohibitedItems: ['票证信息不一致', '依赖现场停车'],
+    allowedOrConditional: ['以主办方公告为准。'],
+    transport: { publicTransport: '优先地铁3号线或10号线。', parking: '市中心活动日停车紧张。'},
+    sourceNote: '黄龙体育中心公开信息',
+    sources: []
+  },
+  {
+    venueId: 'chengdu-sports-centre',
+    venueName: '成都市体育中心',
+    city: '成都',
+    aliases: ['成都市体育中心', '成都体育中心'],
+    scenes: ['concert', 'match'],
+    summary: '成都市中心重要场馆，交通便利。',
+    entryTips: ['市中心活动日建议提早出发。', '优先地铁出行。', '确认实名规则和入口。'],
+    prohibitedItems: ['未带证件', '临近开场才到场'],
+    allowedOrConditional: ['以主办方公告为准。'],
+    transport: { publicTransport: '优先地铁和公交。', parking: '市中心停车位有限。'},
+    sourceNote: '成都市体育中心公开信息',
+    sources: []
+  },
+  {
+    venueId: 'guangzhou-haixinsha',
+    venueName: '海心沙亚运公园',
+    city: '广州',
+    aliases: ['海心沙亚运公园', '海心沙'],
+    scenes: ['concert', 'festival'],
+    summary: '广州珠江新城核心区露天场馆，建议优先地铁接驳。',
+    entryTips: ['市中心商圈活动日人流集中，建议提早到场。', 'APM线海心沙站有时会在大型活动期间飞站，请提前确认。', '露天场馆注意天气变化。'],
+    prohibitedItems: ['未核对地铁飞站信息', '未准备防雨防晒用品'],
+    allowedOrConditional: ['以主办方公告为准。'],
+    transport: { publicTransport: '优先地铁和APM线（注意飞站通知）。', parking: '周边商圈停车压力大。'},
+    sourceNote: '海心沙亚运公园公开信息',
+    sources: []
+  }
 ]
 
 function listVenueRules() {

@@ -3,7 +3,7 @@ const express = require('express')
 const cors = require('cors')
 const { config, isOpenAIConfigured } = require('./config')
 const { hasDatabaseConfig } = require('./database')
-const { initializeStorage } = require('./storage')
+const { initializeStorage, saveFeedback, listStoredFeedbacks } = require('./storage')
 const {
   deleteBattleBookById,
   generateBattleBook,
@@ -39,6 +39,42 @@ app.get('/api/health', (_request, response) => {
     model: config.openaiModel,
     storage: hasDatabaseConfig() ? 'postgres' : 'memory',
   })
+})
+
+app.post('/api/feedbacks', async (request, response) => {
+  try {
+    const { type, content, contact } = request.body
+    if (!type || !content) {
+      return response.status(400).json({ message: '类型和内容不能为空。' })
+    }
+
+    const { randomUUID } = require('crypto')
+    const item = {
+      id: randomUUID(),
+      type,
+      content,
+      contact: contact || '',
+      createdAt: new Date().toISOString(),
+    }
+
+    await saveFeedback(item)
+    return response.status(201).json({ item })
+  } catch (error) {
+    return response.status(500).json({
+      message: error.message || '提交反馈失败，请稍后再试。',
+    })
+  }
+})
+
+app.get('/api/admin/feedbacks', async (request, response) => {
+  try {
+    const items = await listStoredFeedbacks()
+    return response.json({ items })
+  } catch (error) {
+    return response.status(500).json({
+      message: error.message || '获取反馈列表失败。',
+    })
+  }
 })
 
 app.get('/api/battle-books', async (_request, response) => {

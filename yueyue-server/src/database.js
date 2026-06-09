@@ -128,6 +128,21 @@ async function initializeDatabase() {
     ON expense_items (expense_book_id);
   `)
 
+  await db.query(`
+    CREATE TABLE IF NOT EXISTS feedbacks (
+      id TEXT PRIMARY KEY,
+      type TEXT NOT NULL,
+      content TEXT NOT NULL,
+      contact TEXT,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    );
+  `)
+
+  await db.query(`
+    CREATE INDEX IF NOT EXISTS idx_feedbacks_created_at
+    ON feedbacks (created_at DESC);
+  `)
+
   initialized = true
 }
 

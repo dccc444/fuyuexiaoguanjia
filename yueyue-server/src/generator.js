@@ -43,15 +43,16 @@ function buildBattleBookPrompt(input, venueRule) {
     `- 住宿 / 落脚计划：${input.stayPlan || '未提供'}`,
     `- 物料 / 周边计划：${input.merchPlan || '未提供'}`,
     `- 搭子 / 会合计划：${input.meetupPlan || '未提供'}`,
+    `- 是否已购票：${input.hasTicket ? '是' : '否'}`,
     `- 是否跨城：${input.isCrossCity ? '是' : '否'}`,
     `- 是否第一次参加：${input.isFirstTime ? '是' : '否'}`,
     `- 特殊备注：${input.notes || '无'}`,
     '',
     '输出要求：',
-    '1. 评分要体现整体赴约把控度，不要虚高。',
+    '1. 评分（successScore）要体现整体赴约把控度（0-100），不要虚高。请提供1-2条提分建议（improvementTips）。',
     '2. 风险提醒按重要性排序，优先覆盖入场、返程、票务、补给、天气、座位、应援物和会合等问题。',
     '3. 时间线必须覆盖出发前、到场前、入场前、现场中、散场后五个阶段。',
-    '4. 清单必须分为必带、建议带、不建议带。',
+    '4. 清单必须分为必带、建议带、不建议带，每项内容需具体简短（如：身份证、纸质门票、充电宝、纸巾等），适合作为打卡勾选的 Checklist。',
     '5. 到场建议、散场建议、新手提醒都要简明但具体，尽量贴合现场。',
     '6. “穿搭和妆造提醒”模块要考虑天气、出片、行动便利性和排队 / 返程场景。',
     '7. “吃喝和补给”模块要考虑进场前补给、现场补水、散场后吃东西和会合用餐场景。',
@@ -60,8 +61,9 @@ function buildBattleBookPrompt(input, venueRule) {
     '10. “票档和看台提醒”模块要根据票档 / 看台 / 内场差异给出更具体的入场和散场提示。',
     '11. “散场返程提醒”模块要给出返程风险等级、普通返程建议和赶车时的优先行动。',
     '12. 如果用户提供了出片、应援、物料、搭子、跨城赶车等偏好，请把这些偏好体现在风险、时间线和建议里。',
-    '13. 演唱会 / 音乐节更重视应援、出片、物料和补给；球赛更重视看台动线、赛后退场和主客队氛围差异。',
-    '14. 所有输出保持中文，语气像可靠的现场搭子，不要写空话。',
+    '13. 【场景深度定制】如果活动是“演唱会/音乐节”：请在风险和建议中特别强调“应援物合规性（如灯牌、荧光棒是否允许带入）”、“防盗防丢（人多拥挤）”以及“出片与物料领取”；如果活动是“球赛”：请在风险和建议中特别强调“主客队球迷分区防冲突”、“不要穿错主客队球衣”、“赛后退场动线”等针对性提醒。',
+    '14. “票务建议”（ticketAdvice）模块要根据是否已购票输出相应的购票提示（如防黄牛、开票抢票建议等）或验票进场提示。',
+    '15. 所有输出保持中文，语气像可靠的现场搭子，不要写空话。',
     buildVenueRulesPromptBlock(venueRule),
   ].join('\n')
 }
@@ -71,7 +73,7 @@ function buildBattleBookSchema() {
     type: 'object',
     additionalProperties: false,
     properties: {
-      score: {
+      successScore: {
         type: 'object',
         additionalProperties: false,
         properties: {
@@ -80,8 +82,8 @@ function buildBattleBookSchema() {
           summary: { type: 'string' },
           improvementTips: {
             type: 'array',
-            minItems: 2,
-            maxItems: 4,
+            minItems: 1,
+            maxItems: 2,
             items: { type: 'string' },
           },
         },
@@ -243,6 +245,20 @@ function buildBattleBookSchema() {
         },
         required: ['meetup', 'merch', 'solo'],
       },
+      ticketAdvice: {
+        type: 'object',
+        additionalProperties: false,
+        properties: {
+          status: { type: 'string' },
+          tips: {
+            type: 'array',
+            minItems: 2,
+            maxItems: 4,
+            items: { type: 'string' },
+          },
+        },
+        required: ['status', 'tips'],
+      },
       seatAdvice: {
         type: 'object',
         additionalProperties: false,
@@ -310,7 +326,7 @@ function buildBattleBookSchema() {
       },
     },
     required: [
-      'score',
+      'successScore',
       'risks',
       'timeline',
       'checklist',
@@ -318,6 +334,7 @@ function buildBattleBookSchema() {
       'foodAdvice',
       'stayAdvice',
       'socialAdvice',
+      'ticketAdvice',
       'seatAdvice',
       'returnAdvice',
       'suggestions',
@@ -445,6 +462,23 @@ function fallbackSeatAdvice(input) {
   }
 }
 
+function fallbackTicketAdvice(input) {
+  return {
+    status: input.hasTicket ? '已购票' : '未购票',
+    tips: input.hasTicket
+      ? [
+          '请提前截图保存好电子票二维码或准备好纸质票。',
+          '带好身份证，现场多数情况需要刷身份证入场。',
+          '入场前不要在社交媒体上发布未打码的票务信息，防止被盗用。'
+        ]
+      : [
+          '请关注官方售票平台的开票时间，提前设置闹钟。',
+          '不要轻信非官方渠道的“内部票”、“黄牛票”，警惕诈骗。',
+          '抢票时提前填好观演人信息和收货地址，保持网络畅通。'
+        ],
+  }
+}
+
 function fallbackReturnAdvice(input) {
   const urgent = /高铁|火车|飞机|返程|赶车/.test(input.notes || '')
 
@@ -555,14 +589,13 @@ function buildFallbackBattleBookContent(input, venueRule) {
   }
 
   return {
-    score: {
+    successScore: {
       value: scoreValue,
       level: scoreLevel,
       summary: `这次 ${scene} 赴约整体可控，但入场节奏、票档分区和散场返程这几件事一定要提前想好。`,
       improvementTips: [
         '先把场馆入口和票档分区截图保存好。',
         hasUrgentReturn ? '把散场返程当成第一优先级来安排。' : '给进场和散场各留一点缓冲时间。',
-        input.merchPlan || input.meetupPlan ? '物料和会合别挤占入场前最后的缓冲时间。' : '现场想做的事别都堆在同一个时间段。',
       ],
     },
     risks,
@@ -603,6 +636,7 @@ function buildFallbackBattleBookContent(input, venueRule) {
     foodAdvice: fallbackFoodAdvice(input),
     stayAdvice: fallbackStayAdvice(input),
     socialAdvice: fallbackSocialAdvice(input),
+    ticketAdvice: fallbackTicketAdvice(input),
     seatAdvice: fallbackSeatAdvice(input),
     returnAdvice: fallbackReturnAdvice(input),
     suggestions,
@@ -620,6 +654,7 @@ function normalizeBattleBookContent(content, input) {
     foodAdvice: content.foodAdvice || fallbackFoodAdvice(input),
     stayAdvice: content.stayAdvice || fallbackStayAdvice(input),
     socialAdvice: content.socialAdvice || fallbackSocialAdvice(input),
+    ticketAdvice: content.ticketAdvice || fallbackTicketAdvice(input),
     seatAdvice: content.seatAdvice || fallbackSeatAdvice(input),
     returnAdvice: content.returnAdvice || fallbackReturnAdvice(input),
   }

@@ -1,4 +1,76 @@
+import { useState } from 'react'
 import { displayText } from '../utils/tripMeta'
+import { submitFeedback } from '../api'
+
+function FeedbackModal({ onClose }) {
+  const [type, setType] = useState('规则错误')
+  const [content, setContent] = useState('')
+  const [contact, setContact] = useState('')
+  const [submitting, setSubmitting] = useState(false)
+  const [message, setMessage] = useState('')
+
+  async function handleSubmit(e) {
+    e.preventDefault()
+    if (!content.trim()) return
+
+    setSubmitting(true)
+    setMessage('')
+    try {
+      await submitFeedback({ type, content, contact })
+      setMessage('感谢你的反馈，我们会尽快核实更新！')
+      setTimeout(() => onClose(), 2000)
+    } catch (err) {
+      setMessage(err.message || '提交失败，请稍后再试。')
+      setSubmitting(false)
+    }
+  }
+
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal-content panel-v3 panel-v3-light" onClick={e => e.stopPropagation()}>
+        <div className="section-head-v3">
+          <h2>我要纠错</h2>
+        </div>
+        <form onSubmit={handleSubmit} className="v3-form-grid">
+          <div className="v3-form-field">
+            <label>错误类型</label>
+            <select value={type} onChange={e => setType(e.target.value)}>
+              <option value="规则错误">场馆规则错误/过时</option>
+              <option value="建议补充">补充遗漏的建议</option>
+              <option value="其他">其他</option>
+            </select>
+          </div>
+          <div className="v3-form-field">
+            <label>具体内容 *</label>
+            <textarea
+              required
+              rows={4}
+              placeholder="请描述具体的错误或需要补充的信息..."
+              value={content}
+              onChange={e => setContent(e.target.value)}
+            />
+          </div>
+          <div className="v3-form-field">
+            <label>联系方式 (选填)</label>
+            <input
+              type="text"
+              placeholder="微信号/邮箱等，方便我们向你确认"
+              value={contact}
+              onChange={e => setContact(e.target.value)}
+            />
+          </div>
+          {message && <p className={message.includes('感谢') ? 'success-text' : 'error-text'}>{message}</p>}
+          <div className="button-row">
+            <button type="button" className="hero-secondary-v3" onClick={onClose} disabled={submitting}>取消</button>
+            <button type="submit" className="hero-primary-v3" disabled={submitting || !content.trim()}>
+              {submitting ? '提交中...' : '提交'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  )
+}
 
 function SummaryCard({ title, value, tone = 'blue', note }) {
   if (!value) return null
@@ -18,7 +90,7 @@ function getReturnStatusLabel(riskLevel) {
   return '返程相对轻松'
 }
 
-function DynamicPulseStrip({ input, score, venueRules, returnAdvice }) {
+function DynamicPulseStrip({ input, successScore, venueRules, returnAdvice }) {
   const cards = [
     {
       title: '当前场馆',
@@ -34,8 +106,8 @@ function DynamicPulseStrip({ input, score, venueRules, returnAdvice }) {
     },
     {
       title: '赴约安心度',
-      value: `${score.value} 分`,
-      note: score.summary,
+      value: `${successScore?.value || 0} 分`,
+      note: successScore?.summary,
       tone: 'mint',
     },
   ]
@@ -64,7 +136,8 @@ function ChecklistList({ items }) {
 }
 
 function HandbookCover({ battleBook, actions }) {
-  const { input, score } = battleBook
+  const { input } = battleBook
+  const successScore = battleBook.successScore || battleBook.score
   const metaItems = [input.sceneLabel, input.city, input.venue, input.eventDate].filter(Boolean)
 
   return (
@@ -85,8 +158,35 @@ function HandbookCover({ battleBook, actions }) {
       <div className="handbook-summary-side">
         <article className="handbook-score-overview">
           <span>赴约安心度</span>
-          <strong>{score.value} 分</strong>
-          <p>{score.summary}</p>
+          <div className="score-circle">
+            <svg viewBox="0 0 36 36" className="circular-chart">
+              <path
+                className="circle-bg"
+                d="M18 2.0845
+                  a 15.9155 15.9155 0 0 1 0 31.831
+                  a 15.9155 15.9155 0 0 1 0 -31.831"
+              />
+              <path
+                className="circle"
+                strokeDasharray={`${successScore?.value || 0}, 100`}
+                d="M18 2.0845
+                  a 15.9155 15.9155 0 0 1 0 31.831
+                  a 15.9155 15.9155 0 0 1 0 -31.831"
+              />
+              <text x="18" y="20.35" className="percentage">{successScore?.value || 0}</text>
+            </svg>
+          </div>
+          <p>{successScore?.summary}</p>
+          {successScore?.improvementTips && successScore.improvementTips.length > 0 && (
+            <div className="improvement-tips">
+              <strong>提分建议：</strong>
+              <ul>
+                {successScore.improvementTips.map((tip, idx) => (
+                  <li key={idx}>{tip}</li>
+                ))}
+              </ul>
+            </div>
+          )}
         </article>
         <div className="button-row handbook-cover-actions">{actions}</div>
       </div>
@@ -104,12 +204,13 @@ function FanSummary({ input }) {
       <SummaryCard title="住哪里" value={input.stayPlan} tone="blue" />
       <SummaryCard title="物料周边" value={input.merchPlan} tone="gold" />
       <SummaryCard title="搭子会合" value={input.meetupPlan} tone="pink" />
+      <SummaryCard title="票务状态" value={input.hasTicket ? '已购票' : '未购票'} tone="mint" />
       <SummaryCard title="票档 / 分区" value={input.ticketArea} tone="slate" />
     </section>
   )
 }
 
-function GuideModules({ styleAdvice, foodAdvice, stayAdvice, seatAdvice, socialAdvice, returnAdvice, suggestions }) {
+function GuideModules({ styleAdvice, foodAdvice, stayAdvice, ticketAdvice, seatAdvice, socialAdvice, returnAdvice, suggestions }) {
   return (
     <section className="panel-v3 panel-v3-light handbook-guide-board">
       <div className="section-head-v3">
@@ -152,6 +253,14 @@ function GuideModules({ styleAdvice, foodAdvice, stayAdvice, seatAdvice, socialA
           </article>
         ) : null}
 
+        {ticketAdvice ? (
+          <article className="handbook-guide-card tone-mint">
+            <h3>购票</h3>
+            <p>票务建议 ({ticketAdvice.status})</p>
+            <ChecklistList items={(ticketAdvice.tips || []).slice(0, 4)} />
+          </article>
+        ) : null}
+
         {seatAdvice ? (
           <article className="handbook-guide-card tone-slate">
             <h3>票</h3>
@@ -173,6 +282,8 @@ function GuideModules({ styleAdvice, foodAdvice, stayAdvice, seatAdvice, socialA
 }
 
 function RulesAndChecklist({ venueRules, risks, checklist }) {
+  const [showFeedback, setShowFeedback] = useState(false)
+
   return (
     <section className="handbook-detail-grid">
       {venueRules ? (
@@ -182,6 +293,9 @@ function RulesAndChecklist({ venueRules, risks, checklist }) {
               <p className="section-kicker-v3">场馆规则</p>
               <h2>这座场馆的官方重点提醒</h2>
             </div>
+            <button className="hero-secondary-v3 compact" onClick={() => setShowFeedback(true)} type="button">
+              我要纠错
+            </button>
           </div>
           <div className="venue-preview-grid">
             <article className="venue-preview-card venue-preview-main">
@@ -254,11 +368,21 @@ function RulesAndChecklist({ venueRules, risks, checklist }) {
           </article>
         </div>
       </section>
+
+      {!venueRules && (
+        <div style={{ textAlign: 'center', marginTop: '24px' }}>
+          <button className="hero-secondary-v3 compact" onClick={() => setShowFeedback(true)} type="button">
+            我要补充场馆信息
+          </button>
+        </div>
+      )}
+
+      {showFeedback && <FeedbackModal onClose={() => setShowFeedback(false)} />}
     </section>
   )
 }
 
-function TimelineSection({ timeline, score, returnAdvice }) {
+function TimelineSection({ timeline, successScore, returnAdvice }) {
   return (
     <section className="panel-v3 panel-v3-light handbook-module">
       <div className="section-head-v3">
@@ -267,7 +391,7 @@ function TimelineSection({ timeline, score, returnAdvice }) {
           <h2>像 itinerary 一样看这次活动，从到场到返程都更清楚</h2>
         </div>
         <div className="planner-submit-badge">
-          {score.value} 分 · {getReturnStatusLabel(returnAdvice?.riskLevel)}
+          {successScore?.value || 0} 分 · {getReturnStatusLabel(returnAdvice?.riskLevel)}
         </div>
       </div>
       <div className="timeline lively-timeline">
@@ -294,7 +418,6 @@ function TimelineSection({ timeline, score, returnAdvice }) {
 export function BattleBookView({ battleBook, actions }) {
   const {
     input,
-    score,
     risks,
     timeline,
     checklist,
@@ -302,20 +425,25 @@ export function BattleBookView({ battleBook, actions }) {
     styleAdvice,
     foodAdvice,
     stayAdvice,
+    ticketAdvice,
     seatAdvice,
     socialAdvice,
     returnAdvice,
     suggestions,
   } = battleBook
 
+  const successScore = battleBook.successScore || battleBook.score
+  const themeClass = input?.sceneType ? `theme-${input.sceneType}` : 'theme-default'
+
   return (
-    <div className="battlebook-layout handbook-layout-v5">
+    <div className={`battlebook-layout handbook-layout-v5 ${themeClass}`}>
       <HandbookCover actions={actions} battleBook={battleBook} />
-      <DynamicPulseStrip input={input} returnAdvice={returnAdvice} score={score} venueRules={venueRules} />
+      <DynamicPulseStrip input={input} returnAdvice={returnAdvice} successScore={successScore} venueRules={venueRules} />
       <FanSummary input={input} />
       <GuideModules
         foodAdvice={foodAdvice}
         returnAdvice={returnAdvice}
+        ticketAdvice={ticketAdvice}
         seatAdvice={seatAdvice}
         socialAdvice={socialAdvice}
         stayAdvice={stayAdvice}
@@ -323,7 +451,7 @@ export function BattleBookView({ battleBook, actions }) {
         suggestions={suggestions}
       />
       <RulesAndChecklist checklist={checklist} risks={risks} venueRules={venueRules} />
-      <TimelineSection returnAdvice={returnAdvice} score={score} timeline={timeline} />
+      <TimelineSection returnAdvice={returnAdvice} successScore={successScore} timeline={timeline} />
     </div>
   )
 }

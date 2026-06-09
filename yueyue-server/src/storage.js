@@ -1,4 +1,4 @@
-const { battleBooks, budgetPlans, expenseBooks, expenseItems, expenseMembers, shareLinks } = require('./data')
+const { battleBooks, budgetPlans, expenseBooks, expenseItems, expenseMembers, shareLinks, feedbacks } = require('./data')
 const { getPool, hasDatabaseConfig, initializeDatabase } = require('./database')
 
 async function initializeStorage() {
@@ -563,6 +563,57 @@ async function deleteStoredExpenseItemById(id) {
   }
 }
 
+async function saveFeedback(item) {
+  if (!hasDatabaseConfig()) {
+    feedbacks.set(item.id, item)
+    return item
+  }
+
+  const db = getPool()
+  await db.query(
+    `
+      INSERT INTO feedbacks (
+        id,
+        type,
+        content,
+        contact,
+        created_at
+      )
+      VALUES ($1, $2, $3, $4, $5::timestamptz)
+    `,
+    [
+      item.id,
+      item.type,
+      item.content,
+      item.contact,
+      item.createdAt,
+    ]
+  )
+
+  return item
+}
+
+async function listStoredFeedbacks() {
+  if (!hasDatabaseConfig()) {
+    return sortByCreatedAtDesc(Array.from(feedbacks.values()))
+  }
+
+  const db = getPool()
+  const result = await db.query(`
+    SELECT id, type, content, contact, created_at
+    FROM feedbacks
+    ORDER BY created_at DESC
+  `)
+
+  return result.rows.map((row) => ({
+    id: row.id,
+    type: row.type,
+    content: row.content,
+    contact: row.contact,
+    createdAt: row.created_at,
+  }))
+}
+
 module.exports = {
   deleteStoredBattleBookById,
   deleteStoredExpenseItemById,
@@ -577,9 +628,11 @@ module.exports = {
   listStoredBattleBooks,
   listStoredExpenseItems,
   listStoredExpenseMembers,
+  listStoredFeedbacks,
   saveBattleBook,
   saveBudgetPlan,
   saveExpenseBook,
   saveExpenseItem,
   saveExpenseMember,
+  saveFeedback,
 }

@@ -23,6 +23,7 @@ const initialForm = {
   meetupPlan: '',
   isCrossCity: false,
   isFirstTime: true,
+  hasTicket: false,
   notes: '',
 }
 
@@ -280,6 +281,41 @@ function SignalCard({ title, value, tone, note }) {
   )
 }
 
+function GenerationLoadingOverlay() {
+  const steps = [
+    '正在分析你的赴约偏好...',
+    '正在匹配场馆规则...',
+    '正在评估入场和散场风险...',
+    '正在生成赴约时间线...',
+    '马上就好，正在为你排版...'
+  ]
+  const [currentStep, setCurrentStep] = useState(0)
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentStep((prev) => Math.min(prev + 1, steps.length - 1))
+    }, 1500)
+    return () => clearInterval(timer)
+  }, [])
+
+  return (
+    <div className="generation-loading-overlay">
+      <div className="loading-card panel-v3 panel-v3-light">
+        <div className="loading-spinner">
+           <svg viewBox="0 0 50 50">
+             <circle className="path" cx="25" cy="25" r="20" fill="none" strokeWidth="4"></circle>
+           </svg>
+        </div>
+        <h2>正在为你生成专属赴约作战书</h2>
+        <p className="loading-step-text">{steps[currentStep]}</p>
+        <div className="loading-progress-bar">
+          <div className="loading-progress-fill" style={{ width: `${(currentStep + 1) * 20}%` }}></div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function isFilled(value) {
   if (typeof value === 'boolean') return value
   if (typeof value === 'number') return value > 0
@@ -438,6 +474,7 @@ export function CreatePlanPage() {
 
   return (
     <div className="planner-shell-v2">
+      {submitting && <GenerationLoadingOverlay />}
       <aside className="planner-rail">
         <section className="sidebar-card planner-progress-card">
           <p className="sidebar-title">这次赴约准备中</p>
@@ -663,6 +700,10 @@ export function CreatePlanPage() {
                   <input name="ticketArea" onChange={updateField} placeholder="例如：内场 / 523 区 / A 看台" value={form.ticketArea} />
                 </label>
                 <div className="planner-toggle-row">
+                  <label className="form-check-v3">
+                    <input checked={form.hasTicket} name="hasTicket" onChange={updateField} type="checkbox" />
+                    <span>是否已购票</span>
+                  </label>
                   <label className="form-check-v3">
                     <input checked={form.isCrossCity} name="isCrossCity" onChange={updateField} type="checkbox" />
                     <span>这次要跨城</span>

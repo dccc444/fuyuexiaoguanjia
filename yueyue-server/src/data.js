@@ -4,6 +4,7 @@ const budgetPlans = new Map()
 const expenseBooks = new Map()
 const expenseMembers = new Map()
 const expenseItems = new Map()
+const feedbacks = new Map()
 
 module.exports = {
   battleBooks,
@@ -12,4 +13,5 @@ module.exports = {
   expenseItems,
   expenseMembers,
   shareLinks,
+  feedbacks,
 }

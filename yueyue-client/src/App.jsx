@@ -7,6 +7,7 @@ import { MyTripsPage } from './pages/MyTripsPage'
 import { SharedBattleBookPage } from './pages/SharedBattleBookPage'
 import { MoneyManagerPage } from './pages/MoneyManagerPage'
 import { MoneyCenterPage } from './pages/MoneyCenterPage'
+import { AdminPage } from './pages/AdminPage'
 import './styles/home-v3.css'
 
 export default function App() {
@@ -20,6 +21,7 @@ export default function App() {
         <Route path="/money/:id" element={<MoneyManagerPage />} />
         <Route path="/my-trips" element={<MyTripsPage />} />
         <Route path="/shared/:token" element={<SharedBattleBookPage />} />
+        <Route path="/admin" element={<AdminPage />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

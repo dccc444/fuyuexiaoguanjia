@@ -151,3 +151,18 @@ export async function removeExpenseItem(itemId) {
 
   return parseResponse(response)
 }
+
+export async function submitFeedback(payload) {
+  const response = await fetch(`${API_BASE_URL}/feedbacks`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  })
+
+  return parseResponse(response)
+}
+
+export async function listFeedbacks() {
+  const response = await fetch(`${API_BASE_URL}/admin/feedbacks`)
+  return parseResponse(response)
+}
