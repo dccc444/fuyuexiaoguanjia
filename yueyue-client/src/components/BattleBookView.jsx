@@ -159,7 +159,7 @@ function HandbookCover({ battleBook, actions }) {
         <article className="handbook-score-overview">
           <span>赴约安心度</span>
           <div className="score-circle">
-            <svg viewBox="0 0 36 36" className="circular-chart">
+            <svg viewBox="0 0 36 36" className="circular-chart" style={{ width: '80px', height: '80px' }}>
               <path
                 className="circle-bg"
                 d="M18 2.0845
