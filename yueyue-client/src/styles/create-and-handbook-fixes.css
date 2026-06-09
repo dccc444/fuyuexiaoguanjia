@@ -18,6 +18,11 @@
   align-items: start;
 }
 
+.generation-loading-overlay {
+  position: fixed;
+  inset: 0;
+}
+
 .planner-rail {
   position: sticky;
   top: 24px;

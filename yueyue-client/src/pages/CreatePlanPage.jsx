@@ -472,8 +472,9 @@ export function CreatePlanPage() {
   const visibleVenuePreview = form.city && form.venue ? venueRulePreview : null
 
   return (
-    <div className="planner-shell-v2">
+    <>
       {submitting && <GenerationLoadingOverlay />}
+      <div className="planner-shell-v2">
       <aside className="planner-rail">
         <section className="sidebar-card planner-progress-card">
           <p className="sidebar-title">这次赴约准备中</p>
@@ -811,6 +812,7 @@ export function CreatePlanPage() {
           </section>
         </form>
       </div>
-    </div>
+      </div>
+    </>
   )
 }
