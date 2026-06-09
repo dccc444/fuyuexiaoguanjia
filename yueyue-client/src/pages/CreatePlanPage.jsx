@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { generateBattleBook, getBattleBook, getVenueRulePreview, listVenueRules } from '../api'
 
@@ -115,7 +115,6 @@ const preferenceOptions = {
 function SearchBar({ value, onChange, onClear, suggestions, onSelect, placeholder }) {
   const [isOpen, setIsOpen] = useState(false)
   const [activeIndex, setActiveIndex] = useState(-1)
-  const inputRef = useState(null)
 
   const handleKeyDown = (e) => {
     if (!isOpen || suggestions.length === 0) return
@@ -296,7 +295,7 @@ function GenerationLoadingOverlay() {
       setCurrentStep((prev) => Math.min(prev + 1, steps.length - 1))
     }, 1500)
     return () => clearInterval(timer)
-  }, [])
+  }, [steps.length])
 
   return (
     <div className="generation-loading-overlay">

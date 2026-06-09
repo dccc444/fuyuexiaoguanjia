@@ -68,7 +68,7 @@ export function SharedBattleBookPage() {
       link.href = image
       link.download = `赴约作战书-${battleBook.input.eventName || '活动'}.png`
       link.click()
-    } catch (err) {
+    } catch {
       alert('生成长图失败，请稍后再试。')
     } finally {
       setExporting(false)

@@ -138,6 +138,7 @@ function ChecklistList({ items }) {
 function HandbookCover({ battleBook, actions }) {
   const { input } = battleBook
   const successScore = battleBook.successScore || battleBook.score
+  const scoreValue = Math.max(0, Math.min(100, Number(successScore?.value) || 0))
   const metaItems = [input.sceneLabel, input.city, input.venue, input.eventDate].filter(Boolean)
 
   return (
@@ -158,23 +159,8 @@ function HandbookCover({ battleBook, actions }) {
       <div className="handbook-summary-side">
         <article className="handbook-score-overview">
           <span>赴约安心度</span>
-          <div className="score-circle">
-            <svg viewBox="0 0 36 36" className="circular-chart" style={{ width: '80px', height: '80px' }}>
-              <path
-                className="circle-bg"
-                d="M18 2.0845
-                  a 15.9155 15.9155 0 0 1 0 31.831
-                  a 15.9155 15.9155 0 0 1 0 -31.831"
-              />
-              <path
-                className="circle"
-                strokeDasharray={`${successScore?.value || 0}, 100`}
-                d="M18 2.0845
-                  a 15.9155 15.9155 0 0 1 0 31.831
-                  a 15.9155 15.9155 0 0 1 0 -31.831"
-              />
-              <text x="18" y="20.35" className="percentage">{successScore?.value || 0}</text>
-            </svg>
+          <div className="score-circle" style={{ '--score': scoreValue }}>
+            <span>{scoreValue}</span>
           </div>
           <p>{successScore?.summary}</p>
           {successScore?.improvementTips && successScore.improvementTips.length > 0 && (

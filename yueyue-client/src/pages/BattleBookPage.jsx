@@ -53,7 +53,7 @@ export function BattleBookPage() {
       link.download = `赴约作战书-${battleBook.input.eventName || '活动'}.png`
       link.click()
       setShareMessage('长图已生成并开始下载！')
-    } catch (err) {
+    } catch {
       setError('生成长图失败，请稍后再试。')
       setShareMessage('')
     } finally {
