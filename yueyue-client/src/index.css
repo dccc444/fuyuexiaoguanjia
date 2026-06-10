@@ -725,6 +725,56 @@ button {
   box-shadow: 0 0 0 3px var(--primary-soft);
 }
 
+.dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  background: rgba(17, 24, 39, 0.48);
+  display: grid;
+  place-items: center;
+  padding: 20px;
+}
+
+.dialog-panel {
+  width: min(680px, 100%);
+  max-height: min(88vh, 920px);
+  overflow: auto;
+  border-radius: 20px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-hover);
+  padding: 24px;
+}
+
+.dialog-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.tag-selector-row,
+.tag-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.tag-chip {
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--ink-secondary);
+}
+
+.tag-chip.active {
+  border-color: var(--primary);
+  background: var(--primary-soft);
+  color: var(--primary);
+}
+
 .checkbox-field {
   align-items: center;
   grid-template-columns: auto 1fr;

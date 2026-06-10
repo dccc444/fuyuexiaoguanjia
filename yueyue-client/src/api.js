@@ -91,6 +91,45 @@ export async function listVenueRules() {
   return parseResponse(response)
 }
 
+export async function getPlaceSuggestions({ keyword, city }) {
+  const params = new URLSearchParams()
+  if (keyword) params.set('q', keyword)
+  if (city) params.set('city', city)
+
+  const response = await fetch(`${API_BASE_URL}/maps/place-suggestions?${params.toString()}`)
+  return parseResponse(response)
+}
+
+export async function geocodePlace(payload) {
+  const response = await fetch(`${API_BASE_URL}/maps/geocode`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  })
+
+  return parseResponse(response)
+}
+
+export async function getRoutePlan(payload) {
+  const response = await fetch(`${API_BASE_URL}/maps/route-plan`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  })
+
+  return parseResponse(response)
+}
+
+export async function importPlannerActivity(payload) {
+  const response = await fetch(`${API_BASE_URL}/planner/import`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  })
+
+  return parseResponse(response)
+}
+
 export async function getMoneyDashboard(battleBookId) {
   const response = await fetch(`${API_BASE_URL}/battle-books/${battleBookId}/money`)
   return parseResponse(response)
@@ -154,6 +193,96 @@ export async function removeExpenseItem(itemId) {
 
 export async function submitFeedback(payload) {
   const response = await fetch(`${API_BASE_URL}/feedbacks`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  })
+
+  return parseResponse(response)
+}
+
+export async function listBuddyPosts(filters = {}) {
+  const params = new URLSearchParams()
+  if (filters.city) params.set('city', filters.city)
+  if (filters.eventDate) params.set('eventDate', filters.eventDate)
+  if (filters.sceneType) params.set('sceneType', filters.sceneType)
+  if (filters.intentType) params.set('intentType', filters.intentType)
+  if (filters.venue) params.set('venue', filters.venue)
+  if (filters.intentTag) params.set('intentTag', filters.intentTag)
+
+  const queryString = params.toString()
+  const response = await fetch(`${API_BASE_URL}/buddy-posts${queryString ? `?${queryString}` : ''}`)
+  return parseResponse(response)
+}
+
+export async function getBuddyPost(id) {
+  const response = await fetch(`${API_BASE_URL}/buddy-posts/${id}`)
+  return parseResponse(response)
+}
+
+export async function createBuddyPost(payload) {
+  const response = await fetch(`${API_BASE_URL}/buddy-posts`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  })
+
+  return parseResponse(response)
+}
+
+export async function updateBuddyPost(id, payload) {
+  const response = await fetch(`${API_BASE_URL}/buddy-posts/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  })
+
+  return parseResponse(response)
+}
+
+export async function updateBuddyPostStatus(id, status) {
+  const response = await fetch(`${API_BASE_URL}/buddy-posts/${id}/status`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ status }),
+  })
+
+  return parseResponse(response)
+}
+
+export async function deleteBuddyPost(id) {
+  const response = await fetch(`${API_BASE_URL}/buddy-posts/${id}`, {
+    method: 'DELETE',
+  })
+
+  return parseResponse(response)
+}
+
+export async function reportBuddyPost(id, payload) {
+  const response = await fetch(`${API_BASE_URL}/buddy-posts/${id}/report`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  })
+
+  return parseResponse(response)
+}
+
+export async function listMyBuddyPosts() {
+  const response = await fetch(`${API_BASE_URL}/my/buddy-posts`)
+  return parseResponse(response)
+}
+
+export async function toggleBuddyFavorite(id) {
+  const response = await fetch(`${API_BASE_URL}/buddy-posts/${id}/favorite`, {
+    method: 'POST',
+  })
+
+  return parseResponse(response)
+}
+
+export async function toggleBuddyJoinIntent(id, payload = {}) {
+  const response = await fetch(`${API_BASE_URL}/buddy-posts/${id}/join-intent`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),

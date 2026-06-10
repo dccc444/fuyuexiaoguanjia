@@ -51,6 +51,59 @@
   gap: 18px;
 }
 
+.money-center-simple-hero {
+  display: grid;
+  gap: 12px;
+}
+
+.money-center-simple-hero .section-subcopy-v3 {
+  max-width: 560px;
+}
+
+.money-center-simple-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.money-center-simple-card {
+  display: grid;
+  gap: 14px;
+}
+
+.money-center-simple-top {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.money-center-simple-top strong {
+  color: #1A1A1A;
+  font-size: 1.18rem;
+}
+
+.money-center-simple-top p,
+.money-center-simple-copy {
+  margin: 8px 0 0;
+  color: #666666;
+  line-height: 1.65;
+}
+
+.money-center-simple-status {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 0 12px;
+  border: 1px solid #E8E8E8;
+  border-radius: 999px;
+  background: #F5F7FA;
+  color: #666666;
+  font-size: 0.88rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
 /* 记账中心特色卡片 - V3 白底 */
 .money-center-featured {
   background: #FFFFFF;
@@ -697,6 +750,16 @@
 
   .money-entry-flow-status {
     justify-content: flex-start;
+  }
+}
+
+@media (max-width: 920px) {
+  .money-center-simple-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .money-center-simple-top {
+    flex-direction: column;
   }
 }
 

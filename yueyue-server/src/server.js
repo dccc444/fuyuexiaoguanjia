@@ -1,7 +1,7 @@
 const path = require('path')
 const express = require('express')
 const cors = require('cors')
-const { config, isOpenAIConfigured } = require('./config')
+const { config, isAmapConfigured, isOpenAIConfigured } = require('./config')
 const { hasDatabaseConfig } = require('./database')
 const { initializeStorage, saveFeedback, listStoredFeedbacks } = require('./storage')
 const {
@@ -14,6 +14,18 @@ const {
   regenerateBattleBookById,
 } = require('./battle-book-service')
 const {
+  createBuddyPost,
+  deleteBuddyPost,
+  getBuddyPostById,
+  listBuddyPosts,
+  listMyBuddyPosts,
+  reportBuddyPost,
+  toggleBuddyFavorite,
+  toggleBuddyJoinIntent,
+  updateBuddyPost,
+  updateBuddyPostStatus,
+} = require('./buddy-service')
+const {
   addExpenseItem,
   addExpenseMember,
   deleteExpenseItem,
@@ -23,6 +35,8 @@ const {
   suggestBudgetPlan,
   upsertBudgetPlan,
 } = require('./money-service')
+const { geocodePlace, getPlaceSuggestions, getRoutePlan } = require('./map-service')
+const { importPlannerActivity } = require('./planner-import-service')
 const { findVenueRule } = require('./venue-rules')
 
 const app = express()
@@ -30,15 +44,67 @@ const clientDistPath = path.resolve(__dirname, '../../yueyue-client/dist')
 
 app.set('trust proxy', true)
 app.use(cors())
-app.use(express.json())
+app.use(express.json({ limit: '12mb' }))
 
 app.get('/api/health', (_request, response) => {
   response.json({
     ok: true,
     aiConfigured: isOpenAIConfigured(),
+    amapConfigured: isAmapConfigured(),
     model: config.openaiModel,
     storage: hasDatabaseConfig() ? 'postgres' : 'memory',
   })
+})
+
+app.post('/api/planner/import', async (request, response) => {
+  try {
+    const item = await importPlannerActivity(request.body || {})
+    return response.json({ item })
+  } catch (error) {
+    return response.status(error.statusCode || 500).json({
+      message: error.message || '导入活动信息失败，请稍后再试。',
+    })
+  }
+})
+
+app.get('/api/maps/place-suggestions', async (request, response) => {
+  try {
+    const { q = '', city = '' } = request.query
+    const items = await getPlaceSuggestions({ keyword: q, city })
+    return response.json({ items })
+  } catch (error) {
+    return response.status(error.statusCode || 500).json({
+      message: error.message || '获取地点联想失败，请稍后再试。',
+    })
+  }
+})
+
+app.post('/api/maps/geocode', async (request, response) => {
+  try {
+    const item = await geocodePlace(request.body || {})
+    return response.json({ item })
+  } catch (error) {
+    return response.status(error.statusCode || 500).json({
+      message: error.message || '解析地点失败，请稍后再试。',
+    })
+  }
+})
+
+app.post('/api/maps/route-plan', async (request, response) => {
+  try {
+    const { origin, destination } = request.body || {}
+
+    if (!origin || !destination) {
+      return response.status(400).json({ message: '出发地和目的地不能为空。' })
+    }
+
+    const item = await getRoutePlan(request.body || {})
+    return response.json({ item })
+  } catch (error) {
+    return response.status(error.statusCode || 500).json({
+      message: error.message || '路线规划失败，请稍后再试。',
+    })
+  }
 })
 
 app.post('/api/feedbacks', async (request, response) => {
@@ -73,6 +139,132 @@ app.get('/api/admin/feedbacks', async (request, response) => {
   } catch (error) {
     return response.status(500).json({
       message: error.message || '获取反馈列表失败。',
+    })
+  }
+})
+
+app.get('/api/buddy-posts', async (request, response) => {
+  try {
+    const items = await listBuddyPosts({
+      city: request.query.city,
+      eventDate: request.query.eventDate,
+      sceneType: request.query.sceneType,
+      intentType: request.query.intentType,
+      venue: request.query.venue,
+      intentTag: request.query.intentTag,
+    })
+    return response.json({ items })
+  } catch (error) {
+    return response.status(error.statusCode || 500).json({
+      message: error.message || '获取找搭子列表失败，请稍后再试。',
+    })
+  }
+})
+
+app.post('/api/buddy-posts', async (request, response) => {
+  try {
+    const item = await createBuddyPost(request.body || {})
+    return response.status(201).json({ item })
+  } catch (error) {
+    return response.status(error.statusCode || 500).json({
+      message: error.message || '发布找搭子需求失败，请稍后再试。',
+    })
+  }
+})
+
+app.put('/api/buddy-posts/:id', async (request, response) => {
+  try {
+    const item = await updateBuddyPost(request.params.id, request.body || {})
+    return response.json({ item })
+  } catch (error) {
+    return response.status(error.statusCode || 500).json({
+      message: error.message || '更新找搭子需求失败，请稍后再试。',
+    })
+  }
+})
+
+app.get('/api/buddy-posts/:id', async (request, response) => {
+  try {
+    const item = await getBuddyPostById(request.params.id)
+    if (!item) {
+      return response.status(404).json({ message: '没有找到这条找搭子需求。' })
+    }
+
+    return response.json({ item })
+  } catch (error) {
+    return response.status(error.statusCode || 500).json({
+      message: error.message || '获取找搭子详情失败，请稍后再试。',
+    })
+  }
+})
+
+app.post('/api/buddy-posts/:id/status', async (request, response) => {
+  try {
+    const item = await updateBuddyPostStatus(request.params.id, request.body || {})
+    return response.json({ item })
+  } catch (error) {
+    return response.status(error.statusCode || 500).json({
+      message: error.message || '更新帖子状态失败，请稍后再试。',
+    })
+  }
+})
+
+app.delete('/api/buddy-posts/:id', async (request, response) => {
+  try {
+    const item = await deleteBuddyPost(request.params.id)
+
+    if (!item) {
+      return response.status(404).json({ message: '没有找到要删除的找搭子需求。' })
+    }
+
+    return response.json({ success: true })
+  } catch (error) {
+    return response.status(error.statusCode || 500).json({
+      message: error.message || '删除找搭子需求失败，请稍后再试。',
+    })
+  }
+})
+
+app.post('/api/buddy-posts/:id/report', async (request, response) => {
+  try {
+    const item = await reportBuddyPost(request.params.id, request.body || {})
+    return response.status(201).json({ item })
+  } catch (error) {
+    return response.status(error.statusCode || 500).json({
+      message: error.message || '举报失败，请稍后再试。',
+    })
+  }
+})
+
+app.post('/api/buddy-posts/:id/favorite', async (request, response) => {
+  try {
+    const item = await toggleBuddyFavorite(request.params.id)
+    return response.json({ item })
+  } catch (error) {
+    return response.status(error.statusCode || 500).json({
+      message: error.message || '收藏操作失败，请稍后再试。',
+    })
+  }
+})
+
+app.post('/api/buddy-posts/:id/join-intent', async (request, response) => {
+  try {
+    const item = await toggleBuddyJoinIntent(request.params.id, request.body || {})
+    return response.json({ item })
+  } catch (error) {
+    return response.status(error.statusCode || 500).json({
+      message: error.message || '提交一起同行意向失败，请稍后再试。',
+    })
+  }
+})
+
+app.get('/api/my/buddy-posts', async (_request, response) => {
+  try {
+    const items = await listMyBuddyPosts()
+    return response.json({ items })
+  } catch (error) {
+    return response.status(error.statusCode || 500).json({
+      message: error.message || '获取我的找搭子发布失败，请稍后再试。',
     })
   }
 })
@@ -260,6 +452,22 @@ app.get('/api/shared/:token', async (request, response) => {
   }
 
   return response.json({ item })
+})
+
+app.use((error, _request, response, next) => {
+  if (!error) {
+    return next()
+  }
+
+  if (error.type === 'entity.too.large') {
+    return response.status(413).json({
+      message: '上传的截图太大，请压缩后重试，建议控制在 8MB 以内。',
+    })
+  }
+
+  return response.status(error.statusCode || 500).json({
+    message: error.message || '服务开小差了，请稍后再试。',
+  })
 })
 
 app.use(express.static(clientDistPath))

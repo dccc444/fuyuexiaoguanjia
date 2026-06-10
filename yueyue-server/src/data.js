@@ -5,6 +5,10 @@ const expenseBooks = new Map()
 const expenseMembers = new Map()
 const expenseItems = new Map()
 const feedbacks = new Map()
+const buddyPosts = new Map()
+const buddyReports = new Map()
+const buddyFavorites = new Map()
+const buddyJoinIntents = new Map()
 
 module.exports = {
   battleBooks,
@@ -14,4 +18,8 @@ module.exports = {
   expenseMembers,
   shareLinks,
   feedbacks,
+  buddyPosts,
+  buddyReports,
+  buddyFavorites,
+  buddyJoinIntents,
 }

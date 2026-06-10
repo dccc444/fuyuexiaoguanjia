@@ -143,6 +143,99 @@ async function initializeDatabase() {
     ON feedbacks (created_at DESC);
   `)
 
+  await db.query(`
+    CREATE TABLE IF NOT EXISTS buddy_posts (
+      id TEXT PRIMARY KEY,
+      user_id TEXT NOT NULL,
+      scene_type TEXT NOT NULL,
+      event_name TEXT NOT NULL,
+      target_name TEXT NOT NULL DEFAULT '',
+      city TEXT NOT NULL,
+      venue TEXT NOT NULL,
+      event_date TEXT NOT NULL,
+      start_time TEXT NOT NULL DEFAULT '',
+      ticket_area TEXT NOT NULL DEFAULT '',
+      intent_type TEXT NOT NULL,
+      intent_tags JSONB NOT NULL DEFAULT '[]'::jsonb,
+      content TEXT NOT NULL,
+      companions_expected INTEGER NOT NULL DEFAULT 1,
+      is_first_time BOOLEAN NOT NULL DEFAULT FALSE,
+      contact_type TEXT NOT NULL,
+      contact_value TEXT NOT NULL,
+      contact_visibility TEXT NOT NULL DEFAULT 'after_join',
+      status TEXT NOT NULL DEFAULT 'active',
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    );
+  `)
+
+  await db.query(`
+    ALTER TABLE buddy_posts
+    ADD COLUMN IF NOT EXISTS contact_visibility TEXT NOT NULL DEFAULT 'after_join';
+  `)
+
+  await db.query(`
+    CREATE INDEX IF NOT EXISTS idx_buddy_posts_created_at
+    ON buddy_posts (created_at DESC);
+  `)
+
+  await db.query(`
+    CREATE INDEX IF NOT EXISTS idx_buddy_posts_status
+    ON buddy_posts (status);
+  `)
+
+  await db.query(`
+    CREATE INDEX IF NOT EXISTS idx_buddy_posts_city_event_date
+    ON buddy_posts (city, event_date);
+  `)
+
+  await db.query(`
+    CREATE TABLE IF NOT EXISTS buddy_reports (
+      id TEXT PRIMARY KEY,
+      post_id TEXT NOT NULL,
+      reason TEXT NOT NULL,
+      description TEXT NOT NULL DEFAULT '',
+      reporter_contact TEXT NOT NULL DEFAULT '',
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    );
+  `)
+
+  await db.query(`
+    CREATE INDEX IF NOT EXISTS idx_buddy_reports_post_id
+    ON buddy_reports (post_id);
+  `)
+
+  await db.query(`
+    CREATE TABLE IF NOT EXISTS buddy_favorites (
+      id TEXT PRIMARY KEY,
+      post_id TEXT NOT NULL,
+      user_id TEXT NOT NULL,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      UNIQUE (post_id, user_id)
+    );
+  `)
+
+  await db.query(`
+    CREATE INDEX IF NOT EXISTS idx_buddy_favorites_post_id
+    ON buddy_favorites (post_id);
+  `)
+
+  await db.query(`
+    CREATE TABLE IF NOT EXISTS buddy_join_intents (
+      id TEXT PRIMARY KEY,
+      post_id TEXT NOT NULL,
+      user_id TEXT NOT NULL,
+      message TEXT NOT NULL DEFAULT '',
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      UNIQUE (post_id, user_id)
+    );
+  `)
+
+  await db.query(`
+    CREATE INDEX IF NOT EXISTS idx_buddy_join_intents_post_id
+    ON buddy_join_intents (post_id);
+  `)
+
   initialized = true
 }
 

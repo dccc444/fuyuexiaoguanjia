@@ -11,11 +11,12 @@
 }
 
 .topbar-home {
-  padding: 14px 18px;
-  border-radius: 16px;
-  background: #FFFFFF;
-  border: 1px solid #E8E8E8;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  padding: 12px 14px;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.76);
+  border: 1px solid rgba(232, 232, 232, 0.9);
+  box-shadow: 0 10px 28px rgba(20, 34, 72, 0.08);
+  backdrop-filter: blur(18px);
 }
 
 .topbar-home .brand strong,
@@ -34,6 +35,261 @@
   border-color: #2878FF;
   background: rgba(40, 120, 255, 0.1);
   color: #2878FF;
+}
+
+.topbar-home .brand {
+  gap: 12px;
+}
+
+.topbar-home .brand-mark {
+  box-shadow: 0 10px 24px rgba(40, 120, 255, 0.18);
+}
+
+.topnav-home-minimal {
+  gap: 10px;
+  align-items: center;
+}
+
+.topnav-link-home-minimal,
+.topnav-link-home-cta {
+  min-height: 42px;
+  padding: 10px 16px;
+  border-radius: 999px;
+}
+
+.topnav-link-home-minimal {
+  border: 1px solid rgba(40, 120, 255, 0.16);
+  background: rgba(255, 255, 255, 0.64);
+}
+
+.topnav-link-home-cta {
+  border: 1px solid #2878FF;
+  background: #2878FF;
+  color: #FFFFFF !important;
+  box-shadow: 0 10px 24px rgba(40, 120, 255, 0.2);
+}
+
+.topnav-link-home-cta:hover {
+  border-color: #1A66E6 !important;
+  background: #1A66E6 !important;
+  color: #FFFFFF !important;
+}
+
+.home-main-compact {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding-bottom: 28px;
+}
+
+.home-main-brand {
+  max-width: 1220px;
+  margin: 0 auto;
+  min-height: calc(100vh - 120px);
+  align-items: center;
+}
+
+.hero-v3-brand {
+  grid-template-columns: minmax(0, 1fr) minmax(360px, 0.92fr);
+  align-items: stretch;
+}
+
+.hero-copy-brand {
+  min-height: 620px;
+  display: grid;
+  align-content: center;
+  padding: clamp(32px, 5vw, 56px);
+  border-radius: 28px;
+  background:
+    radial-gradient(circle at top left, rgba(123, 97, 255, 0.12), transparent 34%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 250, 255, 0.98));
+}
+
+.hero-copy-brand .hero-title-v3 {
+  gap: 10px;
+  max-width: 8ch;
+  font-size: clamp(2.9rem, 4.2vw, 4.8rem);
+  line-height: 1.02;
+  letter-spacing: -0.045em;
+}
+
+.hero-kicker-brand {
+  color: #7d7d85;
+  letter-spacing: 0.3em;
+}
+
+.hero-title-poster {
+  position: relative;
+  display: grid;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.hero-title-meta {
+  margin: 0 0 2px;
+  color: rgba(26, 26, 26, 0.18);
+  font-family: "Arial Narrow", "Segoe UI", sans-serif;
+  font-size: clamp(1.2rem, 1.9vw, 1.8rem);
+  font-weight: 700;
+  letter-spacing: 0.38em;
+  text-transform: uppercase;
+}
+
+.hero-title-brand {
+  position: relative;
+  z-index: 1;
+  font-family: "Arial Black", "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  text-wrap: balance;
+}
+
+.hero-copy-brand .hero-title-v3 span {
+  display: block;
+  white-space: normal;
+}
+
+.hero-copy-brand .hero-title-highlight {
+  font-size: 0.9em;
+  line-height: 1.06;
+  text-shadow: 0 8px 22px rgba(72, 104, 255, 0.18);
+}
+
+.hero-title-script {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  width: fit-content;
+  margin: 2px 0 0;
+  color: rgba(79, 107, 255, 0.82);
+  font-family: "STKaiti", "KaiTi", "FangSong", cursive;
+  font-size: clamp(1.2rem, 1.65vw, 1.7rem);
+  line-height: 1.2;
+  letter-spacing: 0.08em;
+  transform: none;
+}
+
+.hero-title-script::before {
+  content: "";
+  width: 54px;
+  height: 1px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(79, 107, 255, 0.18), rgba(79, 107, 255, 0.62));
+}
+
+.hero-copy-brand .planner-actions-v3 {
+  margin-top: 28px;
+}
+
+.brand-visual-panel {
+  position: relative;
+  min-height: 620px;
+  border-radius: 28px;
+  overflow: hidden;
+  border: 1px solid #E8E8E8;
+  box-shadow: 0 20px 48px rgba(20, 34, 72, 0.14);
+}
+
+.brand-visual-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.brand-visual-overlay {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(23, 26, 48, 0.08) 0%, rgba(23, 26, 48, 0.26) 45%, rgba(23, 26, 48, 0.7) 100%),
+    radial-gradient(circle at top right, rgba(255, 255, 255, 0.22), transparent 22%);
+}
+
+.brand-visual-copy {
+  position: absolute;
+  left: 24px;
+  right: 24px;
+  bottom: 24px;
+  z-index: 1;
+  display: grid;
+  gap: 10px;
+  padding: 22px;
+  border-radius: 22px;
+  background: rgba(14, 20, 40, 0.48);
+  backdrop-filter: blur(14px);
+  color: #FFFFFF;
+}
+
+.brand-visual-copy span {
+  font-size: 0.82rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.78);
+}
+
+.brand-visual-copy strong {
+  font-size: clamp(1.3rem, 2vw, 1.8rem);
+  line-height: 1.4;
+}
+
+.hero-v3-compact {
+  grid-template-columns: minmax(0, 1.2fr) minmax(320px, 0.8fr);
+  align-items: stretch;
+}
+
+.hero-copy-compact {
+  min-height: 460px;
+  justify-content: center;
+}
+
+.planner-card-compact {
+  display: grid;
+  align-content: center;
+  gap: 18px;
+}
+
+.compact-selling-list {
+  display: grid;
+  gap: 16px;
+  margin-top: 8px;
+}
+
+.compact-selling-item {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 12px;
+  align-items: start;
+}
+
+.compact-selling-item p {
+  margin: 0;
+  color: #666666;
+  line-height: 1.7;
+}
+
+.compact-selling-dot {
+  width: 10px;
+  height: 10px;
+  margin-top: 8px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #2878FF, #7B61FF);
+}
+
+.highlight-grid-compact {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.compact-cta-panel {
+  text-align: center;
+}
+
+.compact-cta-panel .planner-actions-v3 {
+  justify-content: center;
+}
+
+.compact-cta-copy {
+  max-width: 42rem;
+  margin: 10px auto 0;
+  color: #666666;
+  line-height: 1.7;
 }
 
 .home-v3 {
@@ -1699,6 +1955,8 @@
 }
 
 @media (max-width: 920px) {
+  .hero-v3-brand,
+  .hero-v3-compact,
   .hero-v3,
   .carousel-card-v3,
   .create-layout-v3,
@@ -1763,5 +2021,30 @@
   .handbook-cover {
     grid-template-columns: 1fr;
   }
-}
 
+  .hero-copy-compact {
+    min-height: auto;
+  }
+
+  .hero-copy-brand,
+  .brand-visual-panel {
+    min-height: auto;
+  }
+
+  .hero-title-meta {
+    letter-spacing: 0.22em;
+  }
+
+  .hero-title-script {
+    margin-left: 0;
+    gap: 10px;
+  }
+
+  .brand-visual-panel {
+    min-height: 360px;
+  }
+
+  .highlight-grid-compact {
+    grid-template-columns: 1fr;
+  }
+}
