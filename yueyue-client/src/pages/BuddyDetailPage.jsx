@@ -113,7 +113,7 @@ export function BuddyDetailPage() {
   if (error || !item) {
     return (
       <section className="planner-rule-empty">
-        <strong>没有找到这条需求</strong>
+        <strong>没有找到这条邀约</strong>
         <p>{error || '帖子可能已被删除或下架。'}</p>
       </section>
     )
@@ -175,7 +175,7 @@ export function BuddyDetailPage() {
           <ul>
             <li>平台仅提供找搭子信息展示，不参与线下约见或交易担保。</li>
             <li>建议优先选择公开场所会合，不要提前转账，也不要轻易泄露敏感隐私。</li>
-            <li>如果发现广告、票务交易或骚扰内容，可以直接举报这条需求。</li>
+            <li>如果发现广告、票务交易或骚扰内容，可以直接举报这条帖子。</li>
           </ul>
         </section>
 
@@ -183,8 +183,8 @@ export function BuddyDetailPage() {
           <p className="planner-section-title">互动状态</p>
           <ul>
             <li>已有 {item.joinIntentCount || 0} 人表达“我也想一起”。</li>
-            <li>已有 {item.favoriteCount || 0} 人收藏这条需求。</li>
-            <li>{item.intentTags?.length ? `当前标签：${item.intentTags.join(' / ')}` : '当前还没有补充需求标签。'}</li>
+            <li>已有 {item.favoriteCount || 0} 人收藏这条邀约。</li>
+            <li>{item.intentTags?.length ? `当前标签：${item.intentTags.join(' / ')}` : '当前还没有补充同行标签。'}</li>
             <li>{item.canViewContact ? '当前可以直接查看联系方式。' : '当前需要先表达“我也想一起”才能查看联系方式。'}</li>
           </ul>
           <div className="planner-form-grid">
@@ -226,7 +226,7 @@ export function BuddyDetailPage() {
             返回广场
           </Link>
           <button className="hero-primary-v3" disabled={reporting} onClick={() => setReportDialogOpen(true)} type="button">
-            {reporting ? '正在提交举报...' : '举报这条需求'}
+            {reporting ? '正在提交举报...' : '举报这条帖子'}
           </button>
         </section>
 

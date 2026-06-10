@@ -1,0 +1,50 @@
+@use '@/styles/variables.scss' as *;
+
+.wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-md;
+}
+
+.compact {
+  align-items: flex-start;
+}
+
+.copy {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+  min-width: 0;
+}
+
+.title {
+  color: $color-text-tertiary;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-bold;
+}
+
+.subtitle {
+  color: $color-text-primary;
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  line-height: $line-height-tight;
+}
+
+.action {
+  @include button-reset;
+  min-width: 120rpx;
+  height: $button-height-sm;
+  padding: 0 24rpx;
+  border-radius: $radius-button;
+  border: 1rpx solid $color-border;
+  background: $color-bg-card;
+  color: $color-primary;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+
+  &:active {
+    opacity: 0.92;
+    transform: scale(0.98);
+  }
+}

@@ -1,6 +1,21 @@
 const { config, isAmapConfigured } = require('./config')
 
 const AMAP_BASE_URL = 'https://restapi.amap.com'
+const CITY_COORDINATE_PRESETS = {
+  北京: { lng: 116.4074, lat: 39.9042 },
+  上海: { lng: 121.4737, lat: 31.2304 },
+  广州: { lng: 113.2644, lat: 23.1291 },
+  深圳: { lng: 114.0579, lat: 22.5431 },
+  杭州: { lng: 120.1551, lat: 30.2741 },
+  南京: { lng: 118.7969, lat: 32.0603 },
+  成都: { lng: 104.0665, lat: 30.5728 },
+  武汉: { lng: 114.3054, lat: 30.5931 },
+  长沙: { lng: 112.9388, lat: 28.2282 },
+  西安: { lng: 108.9398, lat: 34.3416 },
+  苏州: { lng: 120.5853, lat: 31.2989 },
+  天津: { lng: 117.2009, lat: 39.0842 },
+  郑州: { lng: 113.6254, lat: 34.7466 },
+}
 
 // #region debug-point A:debug-reporter
 function reportDebugEvent(hypothesisId, location, msg, data) {
@@ -202,6 +217,25 @@ function uniqueList(items) {
   return Array.from(new Set(items.filter(Boolean)))
 }
 
+function toCityCoordinate(cityName) {
+  const normalizedCity = String(cityName || '').trim()
+  return CITY_COORDINATE_PRESETS[normalizedCity] || null
+}
+
+function calculateStraightDistanceKm(start, end) {
+  if (!start || !end) return 0
+
+  const toRad = (value) => (value * Math.PI) / 180
+  const earthRadiusKm = 6371
+  const deltaLat = toRad(end.lat - start.lat)
+  const deltaLng = toRad(end.lng - start.lng)
+  const a =
+    Math.sin(deltaLat / 2) * Math.sin(deltaLat / 2) +
+    Math.cos(toRad(start.lat)) * Math.cos(toRad(end.lat)) * Math.sin(deltaLng / 2) * Math.sin(deltaLng / 2)
+
+  return Math.round(earthRadiusKm * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)))
+}
+
 function createFallbackPoint(point, fallbackName) {
   const name = point?.name || point?.address || fallbackName || '未命名地点'
   return {
@@ -318,6 +352,143 @@ function buildOfflineRoutePlan({
       amapConfigured: false,
       source: 'offline-estimate',
     },
+  }
+}
+
+function buildCrossCityRoute({ mode, distanceKm, context }) {
+  const presets = {
+    train: {
+      label: '火车 / 高铁',
+      title: distanceKm >= 700 ? '优先高铁直达' : '优先高铁 / 动车',
+      durationMinutes: Math.max(80, Math.round((distanceKm / 235) * 60 + 45)),
+      stepsSummary: [
+        '优先选到活动城市核心车站的高铁班次，落地后接驳更稳。',
+        '建议至少提前 45 分钟到站，给进站、检票和换乘留缓冲。',
+        '如果散场较晚，记得先看返程末班或改签空间。',
+      ],
+      riskFlags: [
+        '热门场次前后高铁票会更紧张，建议尽量提前锁定班次。',
+        '如果还要从火车站继续换乘到场馆，别把换乘时间压得太满。',
+      ],
+    },
+    flight: {
+      label: '飞机',
+      title: distanceKm >= 900 ? '优先飞机' : '飞机备选',
+      durationMinutes: Math.max(170, Math.round((distanceKm / 620) * 60 + 110)),
+      stepsSummary: [
+        '更适合超远距离跨城，尽量优先选离活动城市更近的机场。',
+        '建议至少提前 90 分钟到机场，给值机、安检和登机留缓冲。',
+        '落地后记得预留机场快线、地铁或网约车进城时间。',
+      ],
+      riskFlags: [
+        '天气和流量控制更容易影响起降时间，别把到场节奏卡得太极限。',
+        '机场通常离市区更远，落地后到场馆的最后一段通勤要单独预留时间。',
+      ],
+    },
+  }
+
+  const preset = presets[mode]
+  if (!preset) return null
+
+  const timing = getTimingInfo(context, preset.durationMinutes)
+
+  return {
+    id: `cross-city-${mode}`,
+    mode,
+    label: preset.label,
+    title: preset.title,
+    durationMinutes: preset.durationMinutes,
+    distanceText: `约 ${Math.max(1, Math.round(distanceKm))} 公里`,
+    departureTimeRecommended: timing.departureTimeRecommended,
+    arrivalTimeEstimated: timing.arrivalTimeEstimated,
+    stepsSummary: preset.stepsSummary,
+    riskFlags: preset.riskFlags,
+    navigationUrl: '',
+    tags: [],
+  }
+}
+
+function pickRecommendedCrossCityRoute(routes, travelPreference, distanceKm) {
+  if (!routes.length) return null
+
+  if (travelPreference === 'fast') {
+    return [...routes].sort((a, b) => a.durationMinutes - b.durationMinutes)[0]
+  }
+
+  if (travelPreference === 'cheap') {
+    return routes.find((item) => item.mode === 'train') || routes[0]
+  }
+
+  if (distanceKm >= 900) {
+    return routes.find((item) => item.mode === 'flight') || routes[0]
+  }
+
+  return routes.find((item) => item.mode === 'train') || routes[0]
+}
+
+function tagCrossCityRoutes(routes) {
+  if (!routes.length) return routes
+
+  const fastestId = [...routes].sort((a, b) => a.durationMinutes - b.durationMinutes)[0]?.id
+  const cheaperId = routes.find((item) => item.mode === 'train')?.id || routes[0]?.id
+
+  return routes.map((route) => ({
+    ...route,
+    tags: uniqueList([
+      route.id === fastestId ? '最快' : '',
+      route.id === cheaperId ? '更省钱' : '',
+      route.mode === 'flight' ? '适合超远距离' : '',
+      route.mode === 'train' ? '市区接驳更稳' : '',
+    ]),
+  }))
+}
+
+function buildCrossCityPlan({
+  departureCity,
+  destinationCity,
+  eventDate,
+  startTime,
+  arrivalBufferMinutes = 90,
+  travelPreference = 'easy',
+  crossCityTransportModes = ['train', 'flight'],
+}) {
+  const fromCity = String(departureCity || '').trim()
+  const toCity = String(destinationCity || '').trim()
+  if (!fromCity || !toCity || fromCity === toCity) {
+    return null
+  }
+
+  const originCoordinate = toCityCoordinate(fromCity)
+  const destinationCoordinate = toCityCoordinate(toCity)
+  const distanceKm = calculateStraightDistanceKm(originCoordinate, destinationCoordinate) || 480
+  const eventDateTime = toDateTime(eventDate, startTime)
+  const bufferMinutes = Number(arrivalBufferMinutes || 90)
+  const arrivalTargetTime = eventDateTime ? new Date(eventDateTime.getTime() - bufferMinutes * 60000) : null
+  const context = {
+    now: new Date(),
+    arrivalTargetTime,
+  }
+
+  const routes = tagCrossCityRoutes(
+    uniqueList(Array.isArray(crossCityTransportModes) ? crossCityTransportModes : ['train', 'flight'])
+      .map((mode) => buildCrossCityRoute({ mode, distanceKm, context }))
+      .filter(Boolean),
+  )
+  const recommended = pickRecommendedCrossCityRoute(routes, travelPreference, distanceKm)
+  if (!recommended) {
+    return null
+  }
+
+  return {
+    originCity: fromCity,
+    destinationCity: toCity,
+    distanceKm,
+    recommended,
+    alternatives: routes.filter((route) => route.id !== recommended.id),
+    summary:
+      recommended.mode === 'flight'
+        ? `从 ${fromCity} 到 ${toCity} 的距离更远，当前更建议优先看飞机方案，把跨城大交通时间先锁住，再安排进城后的最后一段。`
+        : `从 ${fromCity} 到 ${toCity} 的距离更适合优先看火车 / 高铁方案，整体更稳，也更方便你直接衔接到场馆。`,
   }
 }
 
@@ -614,6 +785,9 @@ async function getWalkingRoute({ origin, destination }) {
 async function getRoutePlan({
   origin,
   destination,
+  departureCity = '',
+  isCrossCity = false,
+  crossCityTransportModes = ['train', 'flight'],
   eventDate,
   startTime,
   arrivalBufferMinutes = 90,
@@ -623,6 +797,9 @@ async function getRoutePlan({
   const fallbackPayload = {
     origin,
     destination,
+    departureCity,
+    isCrossCity,
+    crossCityTransportModes,
     eventDate,
     startTime,
     arrivalBufferMinutes,
@@ -630,8 +807,38 @@ async function getRoutePlan({
     transportModes,
   }
 
+  const crossCityPlan = buildCrossCityPlan({
+    departureCity,
+    destinationCity: destination?.city,
+    eventDate,
+    startTime,
+    arrivalBufferMinutes,
+    travelPreference,
+    crossCityTransportModes,
+  })
+
+  if (!origin || !destination) {
+    return {
+      origin: origin ? createFallbackPoint(origin, '出发地') : null,
+      destination: destination ? createFallbackPoint(destination, '目的地') : null,
+      recommended: null,
+      alternatives: [],
+      crossCity: crossCityPlan,
+      meta: {
+        eventDate,
+        startTime,
+        arrivalBufferMinutes: Number(arrivalBufferMinutes || 90),
+        amapConfigured: isAmapConfigured(),
+        source: isAmapConfigured() ? 'cross-city-only' : 'offline-cross-city-only',
+      },
+    }
+  }
+
   if (!isAmapConfigured()) {
-    return buildOfflineRoutePlan(fallbackPayload)
+    return {
+      ...buildOfflineRoutePlan(fallbackPayload),
+      crossCity: crossCityPlan,
+    }
   }
 
   try {
@@ -686,7 +893,10 @@ async function getRoutePlan({
       .map((item) => item.value)
 
     if (!resolvedRoutes.length) {
-      return buildOfflineRoutePlan(fallbackPayload)
+      return {
+        ...buildOfflineRoutePlan(fallbackPayload),
+        crossCity: crossCityPlan,
+      }
     }
 
     const routes = tagRoutes(resolvedRoutes)
@@ -698,6 +908,7 @@ async function getRoutePlan({
       destination: resolvedDestination,
       recommended,
       alternatives,
+      crossCity: crossCityPlan,
       meta: {
         destinationArrivalTarget: arrivalTargetTime ? formatClock(arrivalTargetTime) : '',
         eventDate,
@@ -707,7 +918,10 @@ async function getRoutePlan({
       },
     }
   } catch {
-    return buildOfflineRoutePlan(fallbackPayload)
+    return {
+      ...buildOfflineRoutePlan(fallbackPayload),
+      crossCity: crossCityPlan,
+    }
   }
 }
 

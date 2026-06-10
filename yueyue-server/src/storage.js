@@ -223,16 +223,26 @@ async function saveExpenseBook(item) {
   const db = getPool()
   await db.query(
     `
-      INSERT INTO expense_books (id, battle_book_id, user_id, title, currency, created_at, updated_at)
-      VALUES ($1, $2, $3, $4, $5, $6::timestamptz, $7::timestamptz)
+      INSERT INTO expense_books (id, battle_book_id, user_id, title, currency, default_participant_member_ids, created_at, updated_at)
+      VALUES ($1, $2, $3, $4, $5, $6::jsonb, $7::timestamptz, $8::timestamptz)
       ON CONFLICT (battle_book_id)
       DO UPDATE SET
         user_id = EXCLUDED.user_id,
         title = EXCLUDED.title,
         currency = EXCLUDED.currency,
+        default_participant_member_ids = EXCLUDED.default_participant_member_ids,
         updated_at = EXCLUDED.updated_at
     `,
-    [item.id, item.battleBookId, item.userId, item.title, item.currency, item.createdAt, item.updatedAt]
+    [
+      item.id,
+      item.battleBookId,
+      item.userId,
+      item.title,
+      item.currency,
+      JSON.stringify(item.defaultParticipantMemberIds || []),
+      item.createdAt,
+      item.updatedAt,
+    ]
   )
 
   return item
@@ -246,7 +256,7 @@ async function getStoredExpenseBookByBattleBookId(battleBookId) {
   const db = getPool()
   const result = await db.query(
     `
-      SELECT id, battle_book_id, user_id, title, currency, created_at, updated_at
+      SELECT id, battle_book_id, user_id, title, currency, default_participant_member_ids, created_at, updated_at
       FROM expense_books
       WHERE battle_book_id = $1
       LIMIT 1
@@ -266,6 +276,7 @@ async function getStoredExpenseBookByBattleBookId(battleBookId) {
     userId: row.user_id,
     title: row.title,
     currency: row.currency,
+    defaultParticipantMemberIds: row.default_participant_member_ids || [],
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   }

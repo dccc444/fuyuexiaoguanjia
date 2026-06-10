@@ -145,50 +145,37 @@ export function BuddyPublishPage() {
     <section className="planner-module-card">
       <div className="planner-module-header">
         <div>
-          <p className="planner-section-title">{isEditMode ? '编辑找搭子需求' : '找搭子发布'}</p>
-          <h2>{isEditMode ? '把这条搭子需求改得更准确一点' : '先把这场活动的搭子需求发出去'}</h2>
+          <p className="planner-section-title">{isEditMode ? '编辑搭子邀约' : '找搭子发布'}</p>
+          <h2>{isEditMode ? '把这条邀约改顺' : '把这条邀约发出去'}</h2>
           <p className="planner-module-copy">
             {isEditMode
-              ? '第 2 步开始补管理能力。你现在可以直接修改活动信息、联系方式和需求描述，让帖子保持最新状态。'
-              : '第一步先做轻量发布能力。你可以先把活动信息、想找的搭子类型和联系方式发出去，后面再补广场筛选、我的发布管理和轻互动能力。'}
+              ? '内容随时改，帖子会一直更新。'
+              : '把活动、搭子类型和联系方式写清楚。'}
           </p>
         </div>
         <div className="planner-module-badge">
-          <strong>{isEditMode ? '第 2 步' : '第 1 步'}</strong>
-          <span>{isEditMode ? '支持编辑帖子内容' : '先让第一条需求能发出去'}</span>
+          <strong>{isEditMode ? '可编辑' : '准备发布'}</strong>
+          <span>{isEditMode ? '随时更新帖子内容' : '发出第一条搭子邀约'}</span>
         </div>
       </div>
 
-      <section className="planner-tip-card">
-        <p className="planner-section-title">当前摘要</p>
-        <ul>
-          <li>{summary.join(' / ')}</li>
-          <li>建议只填写真实会联系的方式，不要公开过多隐私。</li>
-          <li>你可以决定联系方式是直接公开，还是对方先表达同行意向后再展示。</li>
-          <li>
-            如果你刚在模块工作台里补过会合信息，可以从
-            {' '}
-            <Link className="planner-inline-link" to="/planner/social">
-              搭子模块
-            </Link>
-            {' '}
-            重新带入内容。
-          </li>
-        </ul>
-      </section>
-
-      <section className="planner-tip-card">
-        <p className="planner-section-title">发布前请注意</p>
-        <ul>
-          <li>请勿发布票务交易、广告、兼职、借贷、骚扰或与活动无关的信息。</li>
-          <li>当前版本不支持公开手机号、二维码和外链联系方式，建议使用微信号、小红书号或联系口令。</li>
-          <li>如果你更在意隐私，建议把联系方式设置为“对方点我也想一起后再展示”。</li>
-          <li>平台只提供找搭子信息展示，请务必自行判断线下见面风险，尽量选择公开场所会合。</li>
-        </ul>
+      <section className="planner-summary-card">
+        <div className="planner-rule-overview-head">
+          <div>
+            <p className="planner-section-title">当前摘要</p>
+            <h3>{summary.join(' / ')}</h3>
+          </div>
+          <Link className="planner-secondary-link" to="/planner/social">
+            从会合页带入
+          </Link>
+        </div>
+        <p className="planner-rule-summary">
+          只先填会决定匹配的内容，次要信息可以展开后再补。联系方式建议用微信号、小红书号或联系口令。
+        </p>
       </section>
 
       <form className="planner-module-form" onSubmit={handleSubmit}>
-        <div className="planner-form-grid">
+        <div className="planner-form-grid planner-form-grid-compact">
           <label className="planner-field">
             <span>活动类型</span>
             <select onChange={(event) => updateField('sceneType', event.target.value)} value={form.sceneType}>
@@ -209,14 +196,9 @@ export function BuddyPublishPage() {
             </select>
           </label>
 
-          <label className="planner-field planner-field-wide">
+          <label className="planner-field">
             <span>活动名称</span>
             <input onChange={(event) => updateField('eventName', event.target.value)} type="text" value={form.eventName} />
-          </label>
-
-          <label className="planner-field planner-field-wide">
-            <span>艺人 / 球队 / 主目标</span>
-            <input onChange={(event) => updateField('targetName', event.target.value)} placeholder="例如：张学友 / 某支主队" type="text" value={form.targetName} />
           </label>
 
           <label className="planner-field">
@@ -237,40 +219,6 @@ export function BuddyPublishPage() {
           <label className="planner-field">
             <span>开始时间</span>
             <input onChange={(event) => updateField('startTime', event.target.value)} type="time" value={form.startTime} />
-          </label>
-
-          <label className="planner-field">
-            <span>票区 / 看台</span>
-            <input onChange={(event) => updateField('ticketArea', event.target.value)} placeholder="例如：看台 128 区" type="text" value={form.ticketArea} />
-          </label>
-
-          <label className="planner-field">
-            <span>想找几个人</span>
-            <input min="1" onChange={(event) => updateField('companionsExpected', Number(event.target.value))} type="number" value={form.companionsExpected} />
-          </label>
-
-          <label className="planner-field planner-field-wide">
-            <span>需求标签</span>
-            <div className="tag-selector-row">
-              {intentTagOptions.map((tag) => (
-                <button
-                  className={form.intentTags.includes(tag) ? 'tag-chip active' : 'tag-chip'}
-                  key={tag}
-                  onClick={() => toggleIntentTag(tag)}
-                  type="button"
-                >
-                  {tag}
-                </button>
-              ))}
-            </div>
-          </label>
-
-          <label className="planner-field">
-            <span>是不是第一次去</span>
-            <select onChange={(event) => updateField('isFirstTime', event.target.value === 'true')} value={String(form.isFirstTime)}>
-              <option value="true">第一次去</option>
-              <option value="false">不是第一次</option>
-            </select>
           </label>
 
           <label className="planner-field">
@@ -302,20 +250,68 @@ export function BuddyPublishPage() {
           </label>
 
           <label className="planner-field planner-field-wide">
-            <span>需求描述</span>
+            <span>同行描述</span>
             <textarea
               className="planner-textarea"
               onChange={(event) => updateField('content', event.target.value)}
               placeholder="例如：一个人去，想找同区女生一起进场和散场，最好也会去领物料。"
-              rows={5}
+              rows={3}
               value={form.content}
             />
           </label>
         </div>
 
+        <details className="planner-collapsible-card">
+          <summary>
+            <span>补充信息</span>
+            <strong>票区、人数、标签和更多活动细节</strong>
+          </summary>
+
+          <div className="planner-form-grid planner-form-grid-compact">
+            <label className="planner-field">
+              <span>艺人 / 球队 / 主目标</span>
+              <input onChange={(event) => updateField('targetName', event.target.value)} placeholder="例如：张学友 / 某支主队" type="text" value={form.targetName} />
+            </label>
+
+            <label className="planner-field">
+              <span>票区 / 看台</span>
+              <input onChange={(event) => updateField('ticketArea', event.target.value)} placeholder="例如：看台 128 区" type="text" value={form.ticketArea} />
+            </label>
+
+            <label className="planner-field">
+              <span>想找几个人</span>
+              <input min="1" onChange={(event) => updateField('companionsExpected', Number(event.target.value))} type="number" value={form.companionsExpected} />
+            </label>
+
+            <label className="planner-field">
+              <span>是不是第一次去</span>
+              <select onChange={(event) => updateField('isFirstTime', event.target.value === 'true')} value={String(form.isFirstTime)}>
+                <option value="true">第一次去</option>
+                <option value="false">不是第一次</option>
+              </select>
+            </label>
+
+            <label className="planner-field planner-field-wide">
+              <span>同行标签</span>
+              <div className="tag-selector-row">
+                {intentTagOptions.map((tag) => (
+                  <button
+                    className={form.intentTags.includes(tag) ? 'tag-chip active' : 'tag-chip'}
+                    key={tag}
+                    onClick={() => toggleIntentTag(tag)}
+                    type="button"
+                  >
+                    {tag}
+                  </button>
+                ))}
+              </div>
+            </label>
+          </div>
+        </details>
+
         <div className="planner-submit-row">
           <button className="hero-primary-v3" disabled={submitting} type="submit">
-            {submitting ? (isEditMode ? '正在保存...' : '正在发布...') : (isEditMode ? '保存修改' : '发布找搭子需求')}
+            {submitting ? (isEditMode ? '正在保存...' : '正在发布...') : (isEditMode ? '保存修改' : '发布搭子邀约')}
           </button>
           <Link className="planner-secondary-link" to="/my-buddy-posts">
             我的发布

@@ -183,6 +183,16 @@ export async function addExpenseItem(expenseBookId, payload) {
   return parseResponse(response)
 }
 
+export async function updateExpenseBookDefaults(expenseBookId, payload) {
+  const response = await fetch(`${API_BASE_URL}/expense-books/${expenseBookId}/defaults`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  })
+
+  return parseResponse(response)
+}
+
 export async function removeExpenseItem(itemId) {
   const response = await fetch(`${API_BASE_URL}/expense-items/${itemId}`, {
     method: 'DELETE',

@@ -1,0 +1,228 @@
+@use '@/styles/variables.scss' as *;
+
+.page {
+  min-height: 100vh;
+  padding: 24rpx $page-padding calc(180rpx + env(safe-area-inset-bottom));
+}
+
+.hero {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+  padding: 32rpx;
+  border-radius: 28rpx;
+  background: linear-gradient(180deg, #fffefe 0%, #fff2f8 100%);
+  box-shadow: $shadow-card;
+  border: 1rpx solid $color-border;
+}
+
+.eyebrow {
+  color: $color-primary;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-bold;
+}
+
+.title {
+  color: $color-text-primary;
+  font-size: 44rpx;
+  font-weight: $font-weight-bold;
+  line-height: 1.22;
+}
+
+.copy {
+  color: $color-text-secondary;
+  font-size: $font-size-md;
+  line-height: $line-height-loose;
+}
+
+.chipScroll {
+  @include scroll-x-container;
+}
+
+.chip {
+  @include button-reset;
+  @include scroll-x-item(160rpx);
+  height: $button-height-sm;
+  margin-right: $spacing-sm;
+  border-radius: $radius-button;
+  border: 1rpx solid $color-border;
+  background: $color-bg-card;
+  color: $color-text-secondary;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+}
+
+.chipActive {
+  background: $color-tag-bg;
+  color: $color-tag-text;
+  border-color: transparent;
+}
+
+.summaryGrid {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+}
+
+.summaryCard {
+  display: flex;
+  flex-direction: column;
+  gap: 10rpx;
+  padding: 24rpx;
+  border-radius: $radius-lg;
+  background: $color-bg-card;
+  box-shadow: $shadow-card;
+  border: 1rpx solid $color-border;
+}
+
+.summaryLabel {
+  color: $color-text-tertiary;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-bold;
+}
+
+.summaryValue {
+  color: $color-text-primary;
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+}
+
+.summaryNote {
+  color: $color-text-secondary;
+  font-size: $font-size-sm;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  margin-top: $spacing-lg;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  padding: 28rpx;
+  border-radius: 26rpx;
+  background: $color-bg-card;
+  box-shadow: $shadow-card;
+  border: 1rpx solid $color-border;
+}
+
+.cardHead {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: $spacing-md;
+}
+
+.cardTag {
+  color: $color-tag-text;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-bold;
+}
+
+.cardStatus {
+  display: inline-flex;
+  align-items: center;
+  min-height: 52rpx;
+  padding: 0 18rpx;
+  border-radius: $radius-round;
+  background: $color-tag-bg;
+  color: $color-tag-text;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
+}
+
+.cardTitle {
+  color: $color-text-primary;
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  line-height: 1.35;
+}
+
+.cardMeta,
+.cardCopy {
+  color: $color-text-secondary;
+  font-size: $font-size-sm;
+  line-height: $line-height-loose;
+}
+
+.tagRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+}
+
+.tagItem {
+  display: inline-flex;
+  align-items: center;
+  min-height: 48rpx;
+  padding: 0 18rpx;
+  border-radius: $radius-round;
+  background: $color-surface-soft;
+  color: $color-tag-text;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
+}
+
+.actionRow {
+  display: flex;
+  gap: $spacing-sm;
+}
+
+.primaryButton,
+.secondaryButton,
+.floatingButton {
+  @include button-reset;
+  white-space: nowrap;
+}
+
+.primaryButton,
+.secondaryButton {
+  flex: 1;
+  height: $button-height-md;
+  border-radius: $radius-button;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+}
+
+.primaryButton {
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
+  color: $color-text-white;
+}
+
+.secondaryButton {
+  border: 1rpx solid $color-border;
+  background: $color-bg-card;
+  color: $color-text-primary;
+}
+
+.floatingBar {
+  position: fixed;
+  left: $page-padding;
+  right: $page-padding;
+  bottom: calc(32rpx + env(safe-area-inset-bottom));
+  padding: 16rpx;
+  border-radius: 28rpx;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: $shadow-float;
+  border: 1rpx solid $color-border;
+}
+
+.floatingButton {
+  width: 100%;
+  height: $button-height-lg;
+  border-radius: $radius-button;
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
+  color: $color-text-white;
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+}

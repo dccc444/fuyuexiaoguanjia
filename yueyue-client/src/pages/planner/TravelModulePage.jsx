@@ -15,6 +15,11 @@ const transportModeOptions = [
   { value: 'walk', label: '步行' },
 ]
 
+const crossCityModeOptions = [
+  { value: 'train', label: '火车 / 高铁' },
+  { value: 'flight', label: '飞机' },
+]
+
 const arrivalBufferOptions = [60, 90, 120]
 
 function TravelList({ title, items, tone = 'soft' }) {
@@ -50,6 +55,16 @@ function PlaceSuggestionList({ items, onSelect }) {
         )
       })}
     </div>
+  )
+}
+
+function ResultSnapshotCard({ eyebrow, title, summary }) {
+  return (
+    <article className="planner-snapshot-card">
+      <span>{eyebrow}</span>
+      <strong>{title}</strong>
+      <p>{summary}</p>
+    </article>
   )
 }
 
@@ -105,15 +120,41 @@ function RouteCard({ route, recommended = false }) {
   )
 }
 
+function JourneyStage({ title, subtitle, summary, route, meta, children }) {
+  return (
+    <article className="planner-journey-stage">
+      <div className="planner-journey-marker" aria-hidden="true" />
+      <div className="planner-journey-body">
+        <div className="planner-rule-overview-head">
+          <div>
+            <p className="planner-section-title">{title}</p>
+            <h3>{route?.title || subtitle}</h3>
+          </div>
+          {meta ? <div className="planner-rule-meta">{meta}</div> : null}
+        </div>
+
+        {summary ? <p className="planner-rule-summary">{summary}</p> : null}
+        {children}
+        {route ? <RouteCard recommended route={route} /> : null}
+      </div>
+    </article>
+  )
+}
+
 export function TravelModulePage() {
   const { draft, updateDraft } = usePlannerDraft()
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
   const [result, setResult] = useState(draft.latestRoutePlan)
+  const [crossCityResult, setCrossCityResult] = useState(draft.latestCrossCityPlan)
   const [originSuggestions, setOriginSuggestions] = useState([])
   const [destinationSuggestions, setDestinationSuggestions] = useState([])
 
   const defaultDestination = useMemo(() => [draft.city, draft.venue].filter(Boolean).join(' '), [draft.city, draft.venue])
+  const localTransportModes = useMemo(
+    () => (draft.isCrossCity ? ['transit'] : draft.preferredTransportModes),
+    [draft.isCrossCity, draft.preferredTransportModes],
+  )
 
   const missingBasics = useMemo(() => {
     const missing = []
@@ -126,14 +167,20 @@ export function TravelModulePage() {
 
   useEffect(() => {
     if (!draft.originInput && draft.departureCity) {
-      updateDraft({ originInput: draft.departureCity })
+      updateDraft({ originInput: draft.isCrossCity ? '' : draft.departureCity })
     }
-  }, [draft.departureCity, draft.originInput, updateDraft])
+  }, [draft.departureCity, draft.isCrossCity, draft.originInput, updateDraft])
 
   useEffect(() => {
     if (!defaultDestination || draft.destinationInput) return
     updateDraft({ destinationInput: defaultDestination })
   }, [defaultDestination, draft.destinationInput, updateDraft])
+
+  useEffect(() => {
+    if (!draft.isCrossCity) return
+    if (draft.preferredTransportModes.length === 1 && draft.preferredTransportModes[0] === 'transit') return
+    updateDraft({ preferredTransportModes: ['transit'] })
+  }, [draft.isCrossCity, draft.preferredTransportModes, updateDraft])
 
   useEffect(() => {
     let ignore = false
@@ -196,27 +243,34 @@ export function TravelModulePage() {
 
     try {
       const data = await getRoutePlan({
-        origin: {
-          name: draft.originInput || draft.departureCity,
-          city: draft.city,
-          location: draft.originLocation,
-        },
+        origin: draft.originInput
+          ? {
+              name: draft.originInput,
+              city: draft.city,
+              location: draft.originLocation,
+            }
+          : null,
         destination: {
           name: draft.destinationInput || defaultDestination,
           city: draft.city,
           location: draft.destinationLocation,
         },
+        departureCity: draft.departureCity,
+        isCrossCity: draft.isCrossCity,
+        crossCityTransportModes: draft.crossCityTransportModes,
         eventDate: draft.eventDate,
         startTime: draft.startTime,
         arrivalBufferMinutes: draft.arrivalBufferMinutes,
         travelPreference: draft.travelPreference,
-        transportModes: draft.preferredTransportModes,
+        transportModes: localTransportModes,
       })
 
       setResult(data.item)
+      setCrossCityResult(data.item.crossCity || null)
       updateDraft({
-        departureCity: draft.originInput || draft.departureCity,
+        departureCity: draft.departureCity,
         latestRoutePlan: data.item,
+        latestCrossCityPlan: data.item.crossCity || null,
       })
     } catch (submitError) {
       setError(submitError.message || '路线规划失败，请稍后再试。')
@@ -233,7 +287,7 @@ export function TravelModulePage() {
   function selectOrigin(item) {
     updateDraft({
       originInput: item.name,
-      departureCity: item.name,
+      arrivalHub: item.name,
       originLocation: item.location,
     })
     setOriginSuggestions([])
@@ -253,36 +307,80 @@ export function TravelModulePage() {
     updateDraft({ preferredTransportModes: next.length ? next : ['transit'] })
   }
 
+  function toggleCrossCityMode(mode) {
+    const current = Array.isArray(draft.crossCityTransportModes) ? draft.crossCityTransportModes : []
+    const next = current.includes(mode) ? current.filter((item) => item !== mode) : [...current, mode]
+    updateDraft({ crossCityTransportModes: next.length ? next : ['train'] })
+  }
+
+  const arrivalTarget = result?.meta?.destinationArrivalTarget || '演出开始前'
+  const localRouteSummaryCards = result?.recommended
+    ? [
+        {
+          eyebrow: '建议出发',
+          title: result.recommended.departureTimeRecommended || '尽量提早出发',
+          summary: `至少提前 ${result.meta?.arrivalBufferMinutes || draft.arrivalBufferMinutes} 分钟到场。`,
+        },
+        {
+          eyebrow: '预计到场',
+          title: result.recommended.arrivalTimeEstimated || '待计算',
+          summary: `${result.recommended.distanceText}，赶在 ${arrivalTarget} 前。`,
+        },
+        {
+          eyebrow: '推荐方式',
+          title: result.recommended.title,
+          summary: result.recommended.stepsSummary?.[0] || '按你的偏好推荐。',
+        },
+      ]
+    : []
+
+  const crossCitySummaryCards = crossCityResult?.recommended
+    ? [
+        {
+          eyebrow: '跨城方式',
+          title: crossCityResult.recommended.title,
+          summary: crossCityResult.summary || '先到城，再接第二段。',
+        },
+        {
+          eyebrow: '建议出发',
+          title: crossCityResult.recommended.departureTimeRecommended || '尽量提早出发',
+          summary: `${crossCityResult.originCity} -> ${crossCityResult.destinationCity}`,
+        },
+        {
+          eyebrow: '预计到达',
+          title: crossCityResult.recommended.arrivalTimeEstimated || '待计算',
+          summary: crossCityResult.recommended.distanceText || '到城后再接市内路线。',
+        },
+      ]
+    : []
+
   return (
     <section className="planner-module-card planner-module-card-compact">
       <div className="planner-module-header">
         <div>
-          <p className="planner-section-title">路线与返程模块</p>
-          <h2>先把怎么去规划清楚</h2>
-          <p className="planner-module-copy">
-            这一版先落地图去程规划：输入出发地、目的地和活动时间后，系统会直接给出推荐路线、预计耗时和建议出发时间。就算你还没补完整草稿，也可以在这里单独完成。
-          </p>
+          <p className="planner-section-title">路线与返程</p>
+          <h2>把到场路线收好</h2>
+          <p className="planner-module-copy">跨城先看大交通，到城后再看去场馆。</p>
         </div>
         <div className="planner-module-badge">
           <strong>{result?.recommended ? '可导航' : '待规划'}</strong>
-          <span>{draft.originInput || draft.departureCity ? '已补出发地' : '先填出发地'}</span>
+          <span>{draft.originInput || draft.departureCity ? '出发地已填' : '先填出发地'}</span>
         </div>
       </div>
 
       {missingBasics.length > 0 ? (
         <section className="planner-tip-card">
-          <p className="planner-section-title">建议先补充</p>
+          <p className="planner-section-title">当前还缺少</p>
           <ul>
             <li>当前还缺少：{missingBasics.join('、')}。</li>
-            <li>你现在仍然可以直接做路线规划，但活动时间越完整，建议出发时间就越准确。</li>
+            <li>活动时间越完整，建议出发时间就越准确。</li>
             <li>
-              如果想让路线规划更贴合这场活动，建议先去
+              补齐
               {' '}
               <Link className="planner-inline-link" to="/planner/basic">
-                基础信息模块
+                基础信息
               </Link>
-              {' '}
-              补全活动信息。
+              。
             </li>
           </ul>
         </section>
@@ -291,21 +389,23 @@ export function TravelModulePage() {
       <form className="planner-module-form" onSubmit={handleSubmit}>
         <div className="planner-inline-meta-grid">
           <label className="planner-field planner-field-compact">
+            <span>是否跨城</span>
+            <select
+              onChange={(event) => updateField('isCrossCity', event.target.value === 'true')}
+              value={String(draft.isCrossCity)}
+            >
+              <option value="false">同城出行</option>
+              <option value="true">跨城赴约</option>
+            </select>
+          </label>
+
+          <label className="planner-field planner-field-compact">
             <span>活动城市</span>
             <input
               onChange={(event) => updateField('city', event.target.value)}
               placeholder="例如：上海、广州、北京"
               type="text"
               value={draft.city}
-            />
-          </label>
-
-          <label className="planner-field planner-field-compact">
-            <span>活动开始时间</span>
-            <input
-              onChange={(event) => updateField('startTime', event.target.value)}
-              type="time"
-              value={draft.startTime}
             />
           </label>
 
@@ -319,19 +419,40 @@ export function TravelModulePage() {
               value={draft.eventDate}
             />
           </label>
+
+          <label className="planner-field planner-field-compact">
+            <span>活动开始时间</span>
+            <input
+              onChange={(event) => updateField('startTime', event.target.value)}
+              type="time"
+              value={draft.startTime}
+            />
+          </label>
         </div>
 
         <div className="planner-form-grid planner-form-grid-travel">
+          <label className="planner-field">
+            <span>{draft.isCrossCity ? '出发城市' : '所在城市'}</span>
+            <input
+              onChange={(event) => updateDraft({ departureCity: event.target.value })}
+              placeholder={draft.isCrossCity ? '例如：杭州、苏州、北京' : '例如：上海'}
+              type="text"
+              value={draft.departureCity}
+            />
+            <p className="planner-field-hint">
+              {draft.isCrossCity ? '这里填出发城市后，会优先推荐合适的火车或飞机。' : '这里填你现在所在的城市，下面再补具体出发地点。'}
+            </p>
+          </label>
+
           <div className="planner-field planner-field-stack">
             <label>
-              <span>出发地</span>
+              <span>{draft.isCrossCity ? '到达活动城市后的出发点' : '出发地'}</span>
               <input
                 onChange={(event) => updateDraft({
                   originInput: event.target.value,
-                  departureCity: event.target.value,
                   originLocation: null,
                 })}
-                placeholder="例如：苏州站、杭州东站、望京 SOHO"
+                placeholder={draft.isCrossCity ? '例如：虹桥火车站、白云机场、酒店' : '例如：苏州站、杭州东站、望京 SOHO'}
                 type="text"
                 value={draft.originInput}
               />
@@ -369,6 +490,24 @@ export function TravelModulePage() {
             </select>
           </label>
 
+          {draft.isCrossCity ? (
+            <label className="planner-field planner-field-wide">
+              <span>跨城大交通可接受方式</span>
+              <div className="planner-checkbox-grid">
+                {crossCityModeOptions.map((option) => (
+                  <label key={option.value} className="planner-checkbox-card">
+                    <input
+                      checked={draft.crossCityTransportModes.includes(option.value)}
+                      onChange={() => toggleCrossCityMode(option.value)}
+                      type="checkbox"
+                    />
+                    <span>{option.label}</span>
+                  </label>
+                ))}
+              </div>
+            </label>
+          ) : null}
+
           <label className="planner-field">
             <span>到场缓冲</span>
             <select
@@ -383,21 +522,30 @@ export function TravelModulePage() {
             </select>
           </label>
 
-          <label className="planner-field planner-field-wide">
-            <span>可用路线方式</span>
-            <div className="planner-checkbox-grid">
-              {transportModeOptions.map((option) => (
-                <label key={option.value} className="planner-checkbox-card">
-                  <input
-                    checked={draft.preferredTransportModes.includes(option.value)}
-                    onChange={() => toggleTransportMode(option.value)}
-                    type="checkbox"
-                  />
-                  <span>{option.label}</span>
-                </label>
-              ))}
-            </div>
-          </label>
+          {draft.isCrossCity ? (
+            <section className="planner-field planner-field-wide planner-stage-note">
+              <span>第二段市内路线</span>
+              <p className="planner-field-hint">
+                跨城模式下，第二段默认只规划到达活动城市后的公共交通，不再把火车 / 飞机那一段混进同一条路线里。
+              </p>
+            </section>
+          ) : (
+            <label className="planner-field planner-field-wide">
+              <span>可用路线方式</span>
+              <div className="planner-checkbox-grid">
+                {transportModeOptions.map((option) => (
+                  <label key={option.value} className="planner-checkbox-card">
+                    <input
+                      checked={draft.preferredTransportModes.includes(option.value)}
+                      onChange={() => toggleTransportMode(option.value)}
+                      type="checkbox"
+                    />
+                    <span>{option.label}</span>
+                  </label>
+                ))}
+              </div>
+            </label>
+          )}
 
           <label className="planner-field planner-field-wide">
             <span>补充备注</span>
@@ -414,12 +562,20 @@ export function TravelModulePage() {
         <div className="planner-submit-row">
           <button
             className="hero-primary-v3"
-            disabled={submitting || !(draft.originInput || draft.departureCity).trim() || !(draft.destinationInput || defaultDestination).trim()}
+            disabled={
+              submitting ||
+              !((draft.isCrossCity ? draft.departureCity : draft.originInput || draft.departureCity) || '').trim() ||
+              !(draft.destinationInput || defaultDestination).trim()
+            }
             type="submit"
           >
-            {submitting ? '正在规划路线...' : '规划去程路线'}
+            {submitting ? '正在规划路线...' : draft.isCrossCity ? '生成两段路线方案' : '规划去程路线'}
           </button>
-          <span className="planner-submit-hint">当前版本优先接入地图去程规划；返程实时路线和 AI 解释层会在下一阶段补齐。</span>
+          <span className="planner-submit-hint">
+            {draft.isCrossCity
+              ? '先看跨城，再看市内。'
+              : '会直接给你去程建议。'}
+          </span>
         </div>
       </form>
 
@@ -432,39 +588,127 @@ export function TravelModulePage() {
 
       {result?.recommended ? (
         <div className="planner-rules-layout">
-          <section className="planner-rule-overview">
-            <div className="planner-rule-overview-head">
-              <div>
-                <p className="planner-section-title">去程结论</p>
-                <h3>{result.recommended.title}</h3>
+          {draft.isCrossCity ? (
+            <section className="planner-rule-overview">
+              <div className="planner-rule-overview-head">
+                <div>
+                  <p className="planner-section-title">两段路线时间轴</p>
+                  <h3>先跨城，再到场</h3>
+                </div>
+                <div className="planner-rule-meta">
+                  <span>{draft.departureCity || crossCityResult?.originCity || '出发城市未填'}</span>
+                  <span>{result.destination?.name || draft.destinationInput || '目的地未填写'}</span>
+                </div>
               </div>
-              <div className="planner-rule-meta">
-                <span>{result.origin?.name || draft.originInput || '未填写出发地'}</span>
-                <span>{result.destination?.name || draft.destinationInput || '未填写目的地'}</span>
+
+              <div className="planner-snapshot-grid">
+                {crossCitySummaryCards.map((item) => (
+                  <ResultSnapshotCard eyebrow={item.eyebrow} key={item.eyebrow} summary={item.summary} title={item.title} />
+                ))}
               </div>
-            </div>
 
-            <p className="planner-rule-summary">
-              推荐按“{result.recommended.title}”去安排这次出发节奏，目标是在 {result.meta?.destinationArrivalTarget || '演出开始前'} 到场，把安检、找入口和现场人流缓冲留出来。
-            </p>
+              <div className="planner-journey-timeline">
+                {crossCityResult?.recommended ? (
+                  <JourneyStage
+                    title="第一段 · 跨城出行"
+                    route={crossCityResult.recommended}
+                    summary={crossCityResult.summary}
+                    meta={
+                      <>
+                        <span>{crossCityResult.originCity}</span>
+                        <span>{crossCityResult.destinationCity}</span>
+                      </>
+                    }
+                  >
+                    {crossCityResult.alternatives?.length ? (
+                      <section className="planner-rule-section planner-rule-section-source">
+                        <div className="planner-rule-section-head">
+                          <h3>第一段备选</h3>
+                          <span>{crossCityResult.alternatives.length} 条</span>
+                        </div>
+                        <div className="planner-route-grid">
+                          {crossCityResult.alternatives.map((route) => (
+                            <RouteCard key={route.id} route={route} />
+                          ))}
+                        </div>
+                      </section>
+                    ) : null}
+                  </JourneyStage>
+                ) : null}
 
-            <div className="planner-transport-grid">
-              <article className="planner-transport-card">
-                <p className="planner-section-title">建议出发</p>
-                <strong>{result.recommended.departureTimeRecommended || '请尽早出发'}</strong>
-                <p>
-                  建议至少提前 {result.meta?.arrivalBufferMinutes || draft.arrivalBufferMinutes} 分钟到场，别把安检、换乘和找入口时间压得太紧。
+                <JourneyStage
+                  title="第二段 · 市内到场路线"
+                  route={result.recommended}
+                  summary={`到 ${draft.city || '活动城市'} 后，按“${result.recommended.title}”去场馆。`}
+                  meta={
+                    <>
+                      <span>{result.origin?.name || draft.originInput || '未填写到达点'}</span>
+                      <span>{result.destination?.name || draft.destinationInput || '未填写目的地'}</span>
+                    </>
+                  }
+                >
+                  <div className="planner-snapshot-grid">
+                    {localRouteSummaryCards.map((item) => (
+                      <ResultSnapshotCard eyebrow={item.eyebrow} key={`local-${item.eyebrow}`} summary={item.summary} title={item.title} />
+                    ))}
+                  </div>
+                  <div className="planner-transport-grid">
+                    <article className="planner-transport-card planner-transport-card-product">
+                      <p className="planner-section-title">建议出发</p>
+                      <strong>{result.recommended.departureTimeRecommended || '请尽早出发'}</strong>
+                      <p>至少提前 {result.meta?.arrivalBufferMinutes || draft.arrivalBufferMinutes} 分钟到场。</p>
+                    </article>
+                    <article className="planner-transport-card planner-transport-card-product">
+                      <p className="planner-section-title">预计到场</p>
+                      <strong>{result.recommended.arrivalTimeEstimated || '待计算'}</strong>
+                      <p>{result.recommended.distanceText}</p>
+                    </article>
+                  </div>
+                </JourneyStage>
+              </div>
+            </section>
+          ) : (
+            <>
+              <section className="planner-rule-overview">
+                <div className="planner-rule-overview-head">
+                  <div>
+                    <p className="planner-section-title">去程结论</p>
+                    <h3>{result.recommended.title}</h3>
+                  </div>
+                  <div className="planner-rule-meta">
+                    <span>{result.origin?.name || draft.originInput || '未填写出发地'}</span>
+                    <span>{result.destination?.name || draft.destinationInput || '未填写目的地'}</span>
+                  </div>
+                </div>
+
+                <p className="planner-rule-summary">
+                  按“{result.recommended.title}”出发，赶在 {arrivalTarget} 前到场。
                 </p>
-              </article>
-              <article className="planner-transport-card">
-                <p className="planner-section-title">预计到场</p>
-                <strong>{result.recommended.arrivalTimeEstimated || '待计算'}</strong>
-                <p>{result.recommended.distanceText}，系统会结合活动开始时间倒推最晚建议出发时点。</p>
-              </article>
-            </div>
-          </section>
 
-          <RouteCard recommended route={result.recommended} />
+                <div className="planner-snapshot-grid">
+                  {localRouteSummaryCards.map((item) => (
+                    <ResultSnapshotCard eyebrow={item.eyebrow} key={item.eyebrow} summary={item.summary} title={item.title} />
+                  ))}
+                </div>
+
+                <div className="planner-transport-grid">
+                  <article className="planner-transport-card planner-transport-card-product">
+                    <p className="planner-section-title">建议出发</p>
+                    <strong>{result.recommended.departureTimeRecommended || '请尽早出发'}</strong>
+                    <p>至少提前 {result.meta?.arrivalBufferMinutes || draft.arrivalBufferMinutes} 分钟到场。</p>
+                  </article>
+                  <article className="planner-transport-card planner-transport-card-product">
+                    <p className="planner-section-title">预计到场</p>
+                    <strong>{result.recommended.arrivalTimeEstimated || '待计算'}</strong>
+                    <p>{result.recommended.distanceText}</p>
+                  </article>
+                </div>
+              </section>
+
+              <RouteCard recommended route={result.recommended} />
+            </>
+          )}
+
           {result.alternatives?.length ? (
             <section className="planner-rule-section planner-rule-section-source">
               <div className="planner-rule-section-head">
@@ -478,6 +722,65 @@ export function TravelModulePage() {
               </div>
             </section>
           ) : null}
+        </div>
+      ) : null}
+
+      {!result?.recommended && crossCityResult?.recommended ? (
+        <div className="planner-rules-layout">
+          <section className="planner-rule-overview">
+            <div className="planner-rule-overview-head">
+              <div>
+                <p className="planner-section-title">跨城出行结论</p>
+                <h3>{crossCityResult.recommended.title}</h3>
+              </div>
+              <div className="planner-rule-meta">
+                <span>{crossCityResult.originCity}</span>
+                <span>{crossCityResult.destinationCity}</span>
+              </div>
+            </div>
+
+            <p className="planner-rule-summary">{crossCityResult.summary}</p>
+            <div className="planner-snapshot-grid">
+              {crossCitySummaryCards.map((item) => (
+                <ResultSnapshotCard eyebrow={item.eyebrow} key={`cross-${item.eyebrow}`} summary={item.summary} title={item.title} />
+              ))}
+            </div>
+            <div className="planner-journey-timeline">
+              <JourneyStage
+                title="第一段 · 跨城出行"
+                route={crossCityResult.recommended}
+                summary="跨城大交通已经先整理好了，补上到达后的出发点，就能继续看第二段市内路线。"
+                meta={
+                  <>
+                    <span>{crossCityResult.originCity}</span>
+                    <span>{crossCityResult.destinationCity}</span>
+                  </>
+                }
+              >
+                {crossCityResult.alternatives?.length ? (
+                  <section className="planner-rule-section planner-rule-section-source">
+                    <div className="planner-rule-section-head">
+                      <h3>第一段备选</h3>
+                      <span>{crossCityResult.alternatives.length} 条</span>
+                    </div>
+                    <div className="planner-route-grid">
+                      {crossCityResult.alternatives?.map((route) => (
+                        <RouteCard key={route.id} route={route} />
+                      ))}
+                    </div>
+                  </section>
+                ) : null}
+              </JourneyStage>
+              <article className="planner-journey-stage planner-journey-stage-pending">
+                <div className="planner-journey-marker" aria-hidden="true" />
+                <div className="planner-journey-body">
+                  <p className="planner-section-title">第二段 · 市内到场路线</p>
+                  <h3>等待补充到达后的出发点</h3>
+                  <p className="planner-rule-summary">例如火车站、机场或酒店。补完后就能生成从到达点到场馆的公共交通方案。</p>
+                </div>
+              </article>
+            </div>
+          </section>
         </div>
       ) : null}
     </section>

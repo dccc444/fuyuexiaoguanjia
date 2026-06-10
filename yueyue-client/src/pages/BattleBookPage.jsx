@@ -4,6 +4,8 @@ import html2canvas from 'html2canvas'
 import { createShareLink, getBattleBook, regenerateBattleBook } from '../api'
 import { BattleBookView } from '../components/BattleBookView'
 import { CommandCenterView } from '../components/CommandCenterView'
+import { getTripMeta, hasBrokenText } from '../utils/tripMeta'
+import { recordSharedBattleBook } from '../utils/shareHistory'
 
 export function BattleBookPage() {
   const { id } = useParams()
@@ -66,7 +68,12 @@ export function BattleBookPage() {
 
     const data = await createShareLink(battleBook.id)
     await navigator.clipboard.writeText(data.shareUrl)
-    setShareMessage('分享链接已经复制好了，现在可以直接发给朋友。')
+    recordSharedBattleBook({
+      id: battleBook.id,
+      title: battleBook.input?.eventName,
+      shareUrl: data.shareUrl,
+    })
+    setShareMessage('分享链接已复制，发给朋友就行。')
   }
 
   async function handleRegenerate() {
@@ -76,10 +83,10 @@ export function BattleBookPage() {
       setRegenerating(true)
       const data = await regenerateBattleBook(battleBook.id)
       setBattleBook(data.item)
-      setShareMessage('这份手册已经重新生成好了，坏掉的文字也一起修过了。')
+      setShareMessage('手册已重新整理好。')
       setError('')
     } catch (regenerateError) {
-      setError(regenerateError.message || '这次重新生成没有成功，请稍后再试。')
+      setError(regenerateError.message || '重新整理失败，请稍后再试。')
     } finally {
       setRegenerating(false)
     }
@@ -93,41 +100,88 @@ export function BattleBookPage() {
     return <section className="panel-v3 panel-v3-light error-text">{error || '没有找到这份赴约手册。'}</section>
   }
 
+  const tripMeta = getTripMeta(battleBook)
+  const detailMeta = [tripMeta.sceneLabel, tripMeta.city, tripMeta.venue, tripMeta.eventDate].filter(Boolean)
+  const needsRepair = hasBrokenText(battleBook.input.eventName)
+
   return (
     <div className="detail-layout detail-layout-inner">
       {shareMessage ? <section className="panel-v3 panel-v3-light success-banner success-banner-inner">{shareMessage}</section> : null}
 
-      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem' }}>
-        <button className="hero-primary-v3 compact" onClick={() => setIsCommandMode(!isCommandMode)} type="button">
-          {isCommandMode ? '返回手册模式' : '切换到当天模式 / 现场指挥中心'}
-        </button>
-      </div>
+      <section className="panel-v3 panel-v3-light detail-page-hero">
+        <div className="detail-page-copy">
+          <p className="section-kicker-v3">活动详情</p>
+          <h1>{isCommandMode ? '当天模式' : '把这场赴约收好'}</h1>
+          <p className="section-subcopy-v3">{detailMeta.join(' · ') || '这场活动的安排都在这里。'}</p>
+          <div className="detail-page-pills">
+            {detailMeta.map((item) => (
+              <span key={item}>{item}</span>
+            ))}
+          </div>
+        </div>
+
+        <div className="detail-page-actions">
+          <button
+            className={isCommandMode ? 'hero-secondary-v3 compact' : 'hero-primary-v3 compact'}
+            onClick={() => setIsCommandMode(false)}
+            type="button"
+          >
+            手册详情
+          </button>
+          <button
+            className={isCommandMode ? 'hero-primary-v3 compact' : 'hero-secondary-v3 compact'}
+            onClick={() => setIsCommandMode(true)}
+            type="button"
+          >
+            当天模式
+          </button>
+        </div>
+      </section>
 
       {isCommandMode ? (
         <CommandCenterView battleBook={battleBook} />
       ) : (
-        <BattleBookView
-          battleBook={battleBook}
-          actions={
-            <>
-              <button className="hero-secondary-v3 compact" onClick={() => navigate(`/money/${battleBook.id}`)} type="button">
-                预算与记账
-              </button>
-              <button className="hero-secondary-v3 compact" onClick={() => navigate('/my-trips')} type="button">
-                回到我的安排
-              </button>
-              <button className="hero-secondary-v3 compact" disabled={regenerating} onClick={handleRegenerate} type="button">
-                {regenerating ? '正在重生成...' : '修复文字并重生成'}
-              </button>
-              <button className="hero-secondary-v3 compact" disabled={exporting} onClick={handleExportImage} type="button">
-                {exporting ? '正在生成...' : '生成长图保存'}
-              </button>
-              <button className="hero-primary-v3 compact" onClick={handleShare} type="button">
-                复制分享链接
-              </button>
-            </>
-          }
-        />
+        <>
+          <BattleBookView
+            battleBook={battleBook}
+            actions={
+              <>
+                <button className="hero-secondary-v3 compact" onClick={() => navigate(`/money/${battleBook.id}`)} type="button">
+                  去记账
+                </button>
+                <button className="hero-secondary-v3 compact" onClick={() => navigate(`/planner?from=${battleBook.id}`)} type="button">
+                  继续完善
+                </button>
+                <button className="hero-secondary-v3 compact" onClick={() => navigate('/my-trips')} type="button">
+                  回到我的
+                </button>
+                <button className="hero-secondary-v3 compact" disabled={exporting} onClick={handleExportImage} type="button">
+                  {exporting ? '正在生成...' : '保存长图'}
+                </button>
+                <button className="hero-primary-v3 compact" onClick={handleShare} type="button">
+                  立刻分享
+                </button>
+                {needsRepair ? (
+                  <button className="hero-secondary-v3 compact" disabled={regenerating} onClick={handleRegenerate} type="button">
+                    {regenerating ? '正在重整...' : '重整手册'}
+                  </button>
+                ) : null}
+              </>
+            }
+          />
+
+          <section className="detail-bottom-bar">
+            <button className="hero-secondary-v3 compact" onClick={() => navigate(`/money/${battleBook.id}`)} type="button">
+              记账
+            </button>
+            <button className="hero-secondary-v3 compact" onClick={() => navigate(`/planner?from=${battleBook.id}`)} type="button">
+              完善
+            </button>
+            <button className="hero-primary-v3 compact" onClick={handleShare} type="button">
+              分享
+            </button>
+          </section>
+        </>
       )}
     </div>
   )

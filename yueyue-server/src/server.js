@@ -33,6 +33,7 @@ const {
   getMoneyDashboardByBattleBookId,
   getSettlementByExpenseBookId,
   suggestBudgetPlan,
+  updateExpenseBookDefaults,
   upsertBudgetPlan,
 } = require('./money-service')
 const { geocodePlace, getPlaceSuggestions, getRoutePlan } = require('./map-service')
@@ -92,10 +93,14 @@ app.post('/api/maps/geocode', async (request, response) => {
 
 app.post('/api/maps/route-plan', async (request, response) => {
   try {
-    const { origin, destination } = request.body || {}
+    const { origin, destination, departureCity, isCrossCity } = request.body || {}
 
-    if (!origin || !destination) {
-      return response.status(400).json({ message: '出发地和目的地不能为空。' })
+    if (!destination) {
+      return response.status(400).json({ message: '目的地不能为空。' })
+    }
+
+    if (!origin && !(isCrossCity && String(departureCity || '').trim())) {
+      return response.status(400).json({ message: '请先填写出发地，或在跨城模式下填写出发城市。' })
     }
 
     const item = await getRoutePlan(request.body || {})
@@ -351,6 +356,17 @@ app.post('/api/expense-books/:id/items', async (request, response) => {
   } catch (error) {
     return response.status(error.statusCode || 500).json({
       message: error.message || '记账失败，请稍后再试。',
+    })
+  }
+})
+
+app.post('/api/expense-books/:id/defaults', async (request, response) => {
+  try {
+    const item = await updateExpenseBookDefaults(request.params.id, request.body || {})
+    return response.json({ item })
+  } catch (error) {
+    return response.status(error.statusCode || 500).json({
+      message: error.message || '保存默认 AA 失败，请稍后再试。',
     })
   }
 })

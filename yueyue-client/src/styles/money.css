@@ -68,7 +68,8 @@
 
 .money-center-simple-card {
   display: grid;
-  gap: 14px;
+  gap: 10px;
+  padding: 16px;
 }
 
 .money-center-simple-top {
@@ -80,28 +81,30 @@
 
 .money-center-simple-top strong {
   color: #1A1A1A;
-  font-size: 1.18rem;
+  font-size: 1.02rem;
+  line-height: 1.45;
 }
 
-.money-center-simple-top p,
-.money-center-simple-copy {
-  margin: 8px 0 0;
+.money-center-simple-top p {
+  margin: 6px 0 0;
   color: #666666;
-  line-height: 1.65;
+  line-height: 1.55;
+  font-size: 0.9rem;
 }
 
 .money-center-simple-status {
   display: inline-flex;
   align-items: center;
-  min-height: 34px;
-  padding: 0 12px;
+  min-height: 30px;
+  padding: 0 10px;
   border: 1px solid #E8E8E8;
   border-radius: 999px;
   background: #F5F7FA;
   color: #666666;
-  font-size: 0.88rem;
+  font-size: 0.8rem;
   font-weight: 600;
-  white-space: nowrap;
+  white-space: normal;
+  text-align: center;
 }
 
 /* 记账中心特色卡片 - V3 白底 */
@@ -150,6 +153,25 @@
   color: #666666;
   font-size: 0.9rem;
   font-weight: 600;
+}
+
+.money-entry-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.money-entry-summary span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 30px;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: #fff8fb;
+  border: 1px solid rgba(230, 82, 151, 0.12);
+  color: #7b6377;
+  font-size: 0.82rem;
+  line-height: 1.3;
 }
 
 .money-center-featured-side {
@@ -212,7 +234,7 @@
 }
 
 .money-entry-actions.compact {
-  margin-top: 16px;
+  margin-top: 4px;
 }
 
 .money-entry-card {
@@ -422,6 +444,35 @@
   color: #1A1A1A;
   font-size: 0.92rem;
   font-weight: 700;
+}
+
+.money-default-aa-card {
+  display: grid;
+  gap: 14px;
+  margin-top: 18px;
+  padding: 18px;
+  border: 1px solid #E8E8E8;
+  border-radius: 16px;
+  background: linear-gradient(180deg, #fff9fc, #fff5fa);
+}
+
+.money-default-aa-head {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.money-default-aa-head strong {
+  color: #1A1A1A;
+  font-size: 1rem;
+}
+
+.money-default-aa-head p,
+.money-default-aa-note {
+  margin: 6px 0 0;
+  color: #666666;
+  line-height: 1.65;
 }
 
 .money-filter-bar {
@@ -761,6 +812,135 @@
   .money-center-simple-top {
     flex-direction: column;
   }
+}
+
+.app-shell-mobile .money-center-page {
+  gap: 14px;
+}
+
+.app-shell-mobile .money-page-v1 {
+  gap: 14px;
+}
+
+.app-shell-mobile .money-hero,
+.app-shell-mobile .money-budget-panel,
+.app-shell-mobile .money-members-panel,
+.app-shell-mobile .money-expense-panel,
+.app-shell-mobile .money-list-panel,
+.app-shell-mobile .money-settlement-panel,
+.app-shell-mobile .budget-advice-panel,
+.app-shell-mobile .budget-alert {
+  border-radius: 24px;
+}
+
+.app-shell-mobile .money-hero {
+  gap: 12px;
+}
+
+.app-shell-mobile .money-hero .action-cluster {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.app-shell-mobile .money-hero .hero-primary-v3,
+.app-shell-mobile .money-hero .hero-secondary-v3 {
+  width: 100%;
+  min-height: 44px;
+  border-radius: 14px;
+}
+
+.app-shell-mobile .money-metric-card {
+  padding: 14px 14px 12px;
+}
+
+.app-shell-mobile .money-metric-card strong {
+  font-size: 1.28rem;
+}
+
+.app-shell-mobile .budget-category-grid,
+.app-shell-mobile .money-metrics-grid,
+.app-shell-mobile .money-board-grid,
+.app-shell-mobile .settlement-balance-grid,
+.app-shell-mobile .money-inline-form,
+.app-shell-mobile .money-expense-form {
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+.app-shell-mobile .money-form-grid {
+  grid-template-columns: 1fr;
+}
+
+.app-shell-mobile .member-chip-card,
+.app-shell-mobile .expense-item-card,
+.app-shell-mobile .settlement-transfer-card,
+.app-shell-mobile .money-default-aa-head {
+  flex-direction: column;
+  align-items: start;
+}
+
+.app-shell-mobile .expense-item-side,
+.app-shell-mobile .money-default-aa-head button {
+  width: 100%;
+  justify-items: stretch;
+}
+
+.app-shell-mobile .expense-item-side .ghost-button,
+.app-shell-mobile .money-default-aa-head .hero-secondary-v3 {
+  width: 100%;
+}
+
+.app-shell-mobile .settlement-copy-tip,
+.app-shell-mobile .money-default-aa-card {
+  padding: 14px;
+}
+
+.app-shell-mobile .money-center-simple-hero,
+.app-shell-mobile .money-filter-panel,
+.app-shell-mobile .money-center-simple-card {
+  border-radius: 24px;
+}
+
+.app-shell-mobile .money-center-simple-grid {
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+.app-shell-mobile .money-center-simple-card {
+  gap: 8px;
+  padding: 14px;
+}
+
+.app-shell-mobile .money-center-simple-top {
+  gap: 10px;
+}
+
+.app-shell-mobile .money-center-simple-top strong {
+  font-size: 0.98rem;
+}
+
+.app-shell-mobile .money-entry-summary {
+  gap: 6px;
+}
+
+.app-shell-mobile .money-entry-summary span {
+  min-height: 28px;
+  padding: 0 9px;
+  font-size: 0.78rem;
+}
+
+.app-shell-mobile .money-entry-actions.compact {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.app-shell-mobile .money-entry-actions.compact .hero-primary-v3,
+.app-shell-mobile .money-entry-actions.compact .hero-secondary-v3 {
+  width: 100%;
+  min-height: 44px;
+  border-radius: 14px;
 }
 
 /* ============================================

@@ -1,0 +1,171 @@
+@use '@/styles/variables.scss' as *;
+
+.page {
+  min-height: 100vh;
+  padding: 24rpx $page-padding calc(140rpx + env(safe-area-inset-bottom));
+}
+
+.hero {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+  padding: 32rpx;
+  border-radius: 28rpx;
+  background: linear-gradient(180deg, #fffefe 0%, #fff2f8 100%);
+  box-shadow: $shadow-card;
+  border: 1rpx solid $color-border;
+}
+
+.heroTitle {
+  color: $color-text-primary;
+  font-size: 44rpx;
+  font-weight: $font-weight-bold;
+  line-height: 1.24;
+}
+
+.heroCopy {
+  color: $color-text-secondary;
+  font-size: $font-size-md;
+  line-height: $line-height-loose;
+}
+
+.progressCard {
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+  padding: 24rpx;
+  border-radius: $radius-lg;
+  background: $color-bg-card;
+  border: 1rpx solid $color-border;
+}
+
+.progressLabel {
+  color: $color-text-tertiary;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-bold;
+}
+
+.progressValue {
+  color: $color-primary;
+  font-size: 40rpx;
+  font-weight: $font-weight-bold;
+}
+
+.actionRow {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+}
+
+.primaryButton,
+.secondaryButton,
+.moduleButton,
+.tripButton {
+  @include button-reset;
+  width: 100%;
+  white-space: nowrap;
+}
+
+.primaryButton {
+  height: $button-height-lg;
+  border-radius: $radius-button;
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
+  color: $color-text-white;
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+}
+
+.secondaryButton {
+  height: $button-height-md;
+  border-radius: $radius-button;
+  border: 1rpx solid $color-border;
+  background: $color-bg-card;
+  color: $color-text-primary;
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  margin-top: $spacing-lg;
+}
+
+.moduleGrid {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.moduleButton {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10rpx;
+  padding: 28rpx;
+  border-radius: 24rpx;
+  background: $color-bg-card;
+  box-shadow: $shadow-card;
+  border: 1rpx solid $color-border;
+}
+
+.moduleStatus {
+  display: inline-flex;
+  align-items: center;
+  min-height: 50rpx;
+  padding: 0 18rpx;
+  border-radius: $radius-round;
+  background: $color-tag-bg;
+  color: $color-tag-text;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
+}
+
+.moduleTitle {
+  color: $color-text-primary;
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+}
+
+.moduleNote {
+  color: $color-text-secondary;
+  font-size: $font-size-sm;
+  line-height: $line-height-loose;
+  text-align: left;
+}
+
+.tripList {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+}
+
+.tripButton {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10rpx;
+  padding: 24rpx;
+  border-radius: $radius-lg;
+  background: $color-bg-card;
+  box-shadow: $shadow-card;
+  border: 1rpx solid $color-border;
+}
+
+.tripLabel {
+  color: $color-text-tertiary;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-bold;
+}
+
+.tripTitle {
+  color: $color-text-primary;
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+}
+
+.tripMeta {
+  color: $color-text-secondary;
+  font-size: $font-size-sm;
+}

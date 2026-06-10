@@ -51,7 +51,7 @@ export function PlannerSummaryPanel() {
         <p className="planner-section-title">整体进度</p>
         <div className="planner-progress-row">
           <strong>{readyCount}/{moduleStatuses.length}</strong>
-          <span>{completion.isComplete ? '已经可以按模块统筹这次赴约' : '先补基础骨架，再去其他模块'}</span>
+          <span>{completion.isComplete ? '这场安排已经成形了' : '活动信息补齐后就顺了'}</span>
         </div>
         <div className="planner-progress-bar" aria-hidden="true">
           <div
@@ -63,7 +63,7 @@ export function PlannerSummaryPanel() {
 
       <section className="planner-summary-card planner-summary-actions">
         <Link className="planner-secondary-link" to="/planner">
-          回到整体统筹
+          回到整体安排
         </Link>
         <button className="planner-ghost-button" onClick={resetDraft} type="button">
           清空当前草稿

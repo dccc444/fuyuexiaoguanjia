@@ -223,6 +223,15 @@ function buildSettlement(members, items) {
   return { balances, transfers }
 }
 
+function resolveDefaultParticipantMemberIds(book, members) {
+  const memberIds = new Set(members.map((member) => member.id))
+  const storedIds = Array.isArray(book?.defaultParticipantMemberIds)
+    ? book.defaultParticipantMemberIds.filter((memberId) => memberIds.has(memberId))
+    : []
+
+  return storedIds.length ? storedIds : members.map((member) => member.id)
+}
+
 async function ensureExpenseBook(battleBook) {
   let book = await getStoredExpenseBookByBattleBookId(battleBook.id)
 
@@ -237,6 +246,7 @@ async function ensureExpenseBook(battleBook) {
     userId: battleBook.userId,
     title: `${battleBook.input.eventName}预算与记账`,
     currency: 'CNY',
+    defaultParticipantMemberIds: [],
     createdAt: now,
     updatedAt: now,
   }
@@ -265,6 +275,10 @@ async function getMoneyDashboardByBattleBookId(battleBookId) {
   const expenseBook = await ensureExpenseBook(battleBook)
   const members = await listStoredExpenseMembers(expenseBook.id)
   const items = await listStoredExpenseItems(expenseBook.id)
+  const normalizedExpenseBook = {
+    ...expenseBook,
+    defaultParticipantMemberIds: resolveDefaultParticipantMemberIds(expenseBook, members),
+  }
   const settlement = buildSettlement(members, items)
   const budgetSummary = buildBudgetSummary(budgetPlan, items)
 
@@ -272,7 +286,7 @@ async function getMoneyDashboardByBattleBookId(battleBookId) {
     battleBook,
     budgetPlan,
     budgetSummary,
-    expenseBook,
+    expenseBook: normalizedExpenseBook,
     members,
     items,
     settlement,
@@ -359,6 +373,36 @@ async function addExpenseMember(expenseBookId, payload) {
   return item
 }
 
+async function updateExpenseBookDefaults(expenseBookId, payload) {
+  const book = await resolveExpenseBookById(expenseBookId)
+  if (!book) {
+    const error = new Error('没有找到这本账。')
+    error.statusCode = 404
+    throw error
+  }
+
+  const members = await listStoredExpenseMembers(expenseBookId)
+  const memberIds = new Set(members.map((member) => member.id))
+  const participants = Array.isArray(payload.defaultParticipantMemberIds)
+    ? payload.defaultParticipantMemberIds.filter((memberId) => memberIds.has(memberId))
+    : []
+
+  if (!participants.length) {
+    const error = new Error('默认 AA 至少要选一个人。')
+    error.statusCode = 400
+    throw error
+  }
+
+  const item = {
+    ...book,
+    defaultParticipantMemberIds: participants,
+    updatedAt: new Date().toISOString(),
+  }
+
+  await saveExpenseBook(item)
+  return item
+}
+
 async function resolveExpenseBookById(expenseBookId) {
   const battleBooks = await listStoredBattleBooks()
 
@@ -395,7 +439,11 @@ async function addExpenseItem(expenseBookId, payload) {
 
   const members = await listStoredExpenseMembers(expenseBookId)
   const memberIds = new Set(members.map((member) => member.id))
-  const participants = Array.isArray(payload.participantMemberIds) ? payload.participantMemberIds.filter((id) => memberIds.has(id)) : []
+  const requestedParticipants = Array.isArray(payload.participantMemberIds)
+    ? payload.participantMemberIds.filter((id) => memberIds.has(id))
+    : []
+  const defaultParticipants = resolveDefaultParticipantMemberIds(book, members)
+  const participants = requestedParticipants.length ? requestedParticipants : defaultParticipants
 
   if (!memberIds.has(payload.paidByMemberId)) {
     const error = new Error('付款人不在当前账本里。')
@@ -444,6 +492,15 @@ async function deleteExpenseMember(memberId) {
     throw error
   }
 
+  const book = await resolveExpenseBookById(member.expenseBookId)
+  if (book && Array.isArray(book.defaultParticipantMemberIds) && book.defaultParticipantMemberIds.includes(memberId)) {
+    await saveExpenseBook({
+      ...book,
+      defaultParticipantMemberIds: book.defaultParticipantMemberIds.filter((id) => id !== memberId),
+      updatedAt: new Date().toISOString(),
+    })
+  }
+
   return deleteStoredExpenseMemberById(memberId)
 }
 
@@ -472,5 +529,6 @@ module.exports = {
   getMoneyDashboardByBattleBookId,
   getSettlementByExpenseBookId,
   suggestBudgetPlan,
+  updateExpenseBookDefaults,
   upsertBudgetPlan,
 }

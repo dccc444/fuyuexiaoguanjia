@@ -45,6 +45,14 @@ function buildMoneySnapshot(dashboard) {
   }
 }
 
+function buildCompactSummary(snapshot) {
+  if (!snapshot) return '还没开始记账'
+  if (snapshot.totalBudget > 0) {
+    return `预算 ${formatCurrency(snapshot.totalBudget)} · 已记 ${snapshot.expenseCount} 笔`
+  }
+  return `${snapshot.expenseCount} 笔支出 · 还没设预算`
+}
+
 function emptySnapshot() {
   return {
     totalBudget: 0,
@@ -131,8 +139,8 @@ export function MoneyCenterPage() {
 
       <section className="panel-v3 panel-v3-light money-center-simple-hero">
         <p className="section-kicker-v3">Money Hub</p>
-        <h1>记账分账</h1>
-        <p className="section-subcopy-v3">只保留一件事：选一场活动，直接开始记账。</p>
+        <h1>把账记明白</h1>
+        <p className="section-subcopy-v3">选一场，马上开记。</p>
         <div className="action-cluster">
           <button className="hero-primary-v3" onClick={() => navigate('/my-trips')} type="button">
             去选活动
@@ -147,7 +155,7 @@ export function MoneyCenterPage() {
         <div className="section-head-v3">
           <div>
             <p className="section-kicker-v3">活动筛选</p>
-            <h2>选择你要记账的活动</h2>
+            <h2>选一场就开记</h2>
           </div>
         </div>
         <div className="choice-chip-row">
@@ -168,7 +176,7 @@ export function MoneyCenterPage() {
 
       {!loading && !loadingSnapshots && filteredItems.length === 0 ? (
         <section className="panel-v3 panel-v3-light empty-state-v3">
-          这里还没有可用的活动。先新建一场活动，后面就能直接在这里记账。
+          还没有可记账的活动，先新建一场吧。
         </section>
       ) : null}
 
@@ -184,7 +192,7 @@ export function MoneyCenterPage() {
                   <div>
                     <div className="trip-content-top">
                       <span className="trip-tag-v3">{meta.sceneLabel}</span>
-                      <span className="trip-date-v2">{meta.eventDate}</span>
+                      {meta.eventDate ? <span className="trip-date-v2">{meta.eventDate}</span> : null}
                     </div>
                     <strong>{meta.eventName}</strong>
                     <p>{meta.city} · {meta.venue}</p>
@@ -192,24 +200,18 @@ export function MoneyCenterPage() {
                   <span className="money-center-simple-status">{snapshot?.budgetStatus || '还没开始设预算'}</span>
                 </div>
 
-                <div className="money-entry-meta">
-                  <span>去见：{meta.targetName}</span>
-                  <span>票档：{meta.ticketArea}</span>
-                  <span>{snapshot ? `${snapshot.expenseCount} 笔已记` : '0 笔已记'}</span>
+                <div className="money-entry-summary">
+                  <span>{buildCompactSummary(snapshot)}</span>
+                  {meta.targetName ? <span>去见 {meta.targetName}</span> : null}
+                  {meta.ticketArea ? <span>{meta.ticketArea}</span> : null}
                 </div>
-
-                <p className="money-center-simple-copy">
-                  {snapshot?.totalBudget
-                    ? `总预算 ${formatCurrency(snapshot.totalBudget)}，已花 ${formatCurrency(snapshot.totalSpent)}。`
-                    : '还没开始设预算，适合先记下票务、交通和住宿。'}
-                </p>
 
                 <div className="action-cluster money-entry-actions compact">
                   <button className="hero-primary-v3 compact" onClick={() => navigate(`/money/${trip.id}`)} type="button">
                     打开记账
                   </button>
                   <button className="hero-secondary-v3 compact" onClick={() => navigate(`/battle-books/${trip.id}`)} type="button">
-                    看手册
+                    手册
                   </button>
                 </div>
               </article>

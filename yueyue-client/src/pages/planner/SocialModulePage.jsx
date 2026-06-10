@@ -40,6 +40,16 @@ function SocialList({ title, items, tone = 'soft' }) {
   )
 }
 
+function ResultSnapshotCard({ eyebrow, title, summary }) {
+  return (
+    <article className="planner-snapshot-card">
+      <span>{eyebrow}</span>
+      <strong>{title}</strong>
+      <p>{summary}</p>
+    </article>
+  )
+}
+
 export function SocialModulePage() {
   const { draft, updateDraft } = usePlannerDraft()
   const [submitting, setSubmitting] = useState(false)
@@ -128,91 +138,90 @@ export function SocialModulePage() {
       draft.isFirstTime,
   )
 
+  const socialSummaryCards = result?.socialAdvice
+    ? [
+        {
+          eyebrow: '同行状态',
+          title: draft.companions > 1 ? `${draft.companions} 人同行` : '一个人去',
+          summary: draft.companions > 1 ? '会合和进场先说好。' : '入口、返程和联系点先想好。',
+        },
+        {
+          eyebrow: '会合安排',
+          title: draft.meetupPlan || '待确认',
+          summary: result.socialAdvice.meetup?.[0] || '先定明显地标。',
+        },
+        {
+          eyebrow: '物料安排',
+          title: draft.merchPlan || '按现场节奏安排',
+          summary: result.socialAdvice.merch?.[0] || '领物料和进场分开走。',
+        },
+      ]
+    : []
+
+  const eventSnapshot = [draft.eventName || '这场活动', draft.city, draft.venue, draft.eventDate].filter(Boolean)
+
   return (
     <section className="planner-module-card">
       <div className="planner-module-header">
         <div>
-          <p className="planner-section-title">搭子 / 物料 / 会合模块</p>
-          <h2>先把会合、领物料和一个人去的节奏想清楚</h2>
-          <p className="planner-module-copy">
-            这个模块聚焦现场最容易慌乱的三件事：在哪里会合、物料和周边怎么安排、一个人去时要不要提前做准备。现在也可以在这里直接补活动信息，不必回到别的模块。
-          </p>
+          <p className="planner-section-title">搭子 / 物料 / 会合</p>
+          <h2>把会合物料收好</h2>
+          <p className="planner-module-copy">会合点、物料和现场节奏，先想好就不慌。</p>
         </div>
         <div className="planner-module-badge">
           <strong>{result?.socialAdvice ? '可执行' : '待生成'}</strong>
-          <span>{draft.meetupPlan || draft.merchPlan ? '已补社交信息' : '先填会合或物料计划'}</span>
+          <span>{draft.meetupPlan || draft.merchPlan ? '已补会合信息' : '补上会合或物料'}</span>
         </div>
       </div>
 
       {missingBasics.length > 0 ? (
         <section className="planner-tip-card">
-          <p className="planner-section-title">建议先补充</p>
+          <p className="planner-section-title">当前还缺少</p>
           <ul>
             <li>当前还缺少：{missingBasics.join('、')}。</li>
-            <li>你现在仍然可以先生成会合和物料建议，但如果场馆未补齐，会合点和入口提醒会偏通用。</li>
+            <li>场馆信息越完整，会合点和入口提醒会越贴近这场活动。</li>
             <li>
-              如果想让建议更贴合这场活动，建议先去
+              补齐
               {' '}
               <Link className="planner-inline-link" to="/planner/basic">
-                基础信息模块
+                基础信息
               </Link>
-              {' '}
-              补全活动信息。
+              。
             </li>
           </ul>
         </section>
       ) : null}
 
+      {missingBasics.length === 0 ? (
+        <section className="planner-summary-card">
+          <div className="planner-rule-overview-head">
+            <div>
+              <p className="planner-section-title">当前活动</p>
+              <h3>{draft.eventName || '这场活动'}</h3>
+            </div>
+            <Link className="planner-secondary-link" to="/planner/basic">
+              去改基础信息
+            </Link>
+          </div>
+          <div className="planner-inline-meta-grid">
+            <article className="planner-meta-card">
+              <span>城市</span>
+              <strong>{draft.city || '待补充'}</strong>
+            </article>
+            <article className="planner-meta-card">
+              <span>场馆</span>
+              <strong>{draft.venue || '待补充'}</strong>
+            </article>
+            <article className="planner-meta-card">
+              <span>时间</span>
+              <strong>{[draft.eventDate, draft.startTime].filter(Boolean).join(' · ') || '待补充'}</strong>
+            </article>
+          </div>
+        </section>
+      ) : null}
+
       <form className="planner-module-form" onSubmit={handleSubmit}>
         <div className="planner-form-grid">
-          <label className="planner-field">
-            <span>活动名称</span>
-            <input
-              onChange={(event) => updateField('eventName', event.target.value)}
-              placeholder="例如：周杰伦演唱会 / 草莓音乐节 / 德比赛"
-              type="text"
-              value={draft.eventName}
-            />
-          </label>
-
-          <label className="planner-field">
-            <span>活动城市</span>
-            <input
-              onChange={(event) => updateField('city', event.target.value)}
-              placeholder="例如：上海、广州、北京"
-              type="text"
-              value={draft.city}
-            />
-          </label>
-
-          <label className="planner-field">
-            <span>场馆</span>
-            <input
-              onChange={(event) => updateField('venue', event.target.value)}
-              placeholder="例如：上海体育场、工体、梅奔"
-              type="text"
-              value={draft.venue}
-            />
-          </label>
-
-          <label className="planner-field">
-            <span>活动日期</span>
-            <input
-              onChange={(event) => updateField('eventDate', event.target.value)}
-              type="date"
-              value={draft.eventDate}
-            />
-          </label>
-
-          <label className="planner-field">
-            <span>开始时间</span>
-            <input
-              onChange={(event) => updateField('startTime', event.target.value)}
-              type="time"
-              value={draft.startTime}
-            />
-          </label>
-
           <label className="planner-field">
             <span>同行情况</span>
             <select onChange={(event) => updateField('companions', Number(event.target.value))} value={String(draft.companions)}>
@@ -252,29 +261,36 @@ export function SocialModulePage() {
             />
           </label>
 
+        </div>
+
+        <details className="planner-collapsible-card">
+          <summary>
+            <span>补充说明</span>
+            <strong>{eventSnapshot.join(' · ') || '把顾虑和特殊情况补在这里'}</strong>
+          </summary>
           <label className="planner-field planner-field-wide">
             <span>补充说明</span>
             <textarea
               className="planner-textarea"
               onChange={(event) => updateField('notes', event.target.value)}
               placeholder="例如：想在场外领应援物、一个人去怕找不到入口、担心和朋友走散"
-              rows={4}
+              rows={3}
               value={draft.notes}
             />
           </label>
-        </div>
+        </details>
 
         <div className="planner-submit-row">
           <button className="hero-primary-v3" disabled={submitting || !canSubmit} type="submit">
             {submitting ? '正在生成会合与物料建议...' : '生成搭子 / 物料 / 会合建议'}
           </button>
-          <span className="planner-submit-hint">复用现有手册生成能力，但这里只展示 socialAdvice 结果。</span>
+          <span className="planner-submit-hint">会合、物料和 solo 提醒会一起出来。</span>
         </div>
       </form>
 
       <section className="planner-summary-card planner-summary-actions">
         <Link className="hero-primary-v3" to="/buddy/new" state={{ prefill: buddyPrefill }}>
-          直接发布找搭子需求
+          直接发布搭子邀约
         </Link>
         <Link className="planner-secondary-link" to="/buddy">
           去找搭子广场
@@ -296,8 +312,8 @@ export function SocialModulePage() {
           <section className="planner-rule-overview">
             <div className="planner-rule-overview-head">
               <div>
-                <p className="planner-section-title">模块结论</p>
-                <h3>{draft.companions > 1 ? '先把会合点定死' : '一个人去也能很稳'}</h3>
+                <p className="planner-section-title">当前建议</p>
+                <h3>{draft.companions > 1 ? '会合点提前定好' : '一个人去也能从容'}</h3>
               </div>
               <div className="planner-rule-meta">
                 <span>{draft.companions > 1 ? `${draft.companions} 人同行` : '单人赴约'}</span>
@@ -307,20 +323,26 @@ export function SocialModulePage() {
 
             <p className="planner-rule-summary">
               {draft.meetupPlan || draft.merchPlan
-                ? `这次重点围绕“${draft.meetupPlan || '会合'} / ${draft.merchPlan || '物料'}”来安排节奏，建议把场外动作和正式入场分开。`
-                : '这一块最关键的是把会合点、周边安排和入场节奏拆开，别把所有事情都压到临进场前。'}
+                ? `这次重点是“${draft.meetupPlan || '会合'} / ${draft.merchPlan || '物料'}”。`
+                : '会合、周边和进场，别堆到最后一刻。'}
             </p>
 
+            <div className="planner-snapshot-grid">
+              {socialSummaryCards.map((item) => (
+                <ResultSnapshotCard eyebrow={item.eyebrow} key={item.eyebrow} summary={item.summary} title={item.title} />
+              ))}
+            </div>
+
             <div className="planner-transport-grid">
-              <article className="planner-transport-card">
+              <article className="planner-transport-card planner-transport-card-product">
                 <p className="planner-section-title">会合方向</p>
                 <strong>会合点先定死</strong>
-                <p>{result.socialAdvice.meetup?.[0] || '尽量约在地铁口、服务台或固定雕塑这种明显地标。'}</p>
+                <p>{result.socialAdvice.meetup?.[0] || '尽量约在明显地标。'}</p>
               </article>
-              <article className="planner-transport-card">
+              <article className="planner-transport-card planner-transport-card-product">
                 <p className="planner-section-title">solo 方向</p>
                 <strong>一个人也别慌</strong>
-                <p>{result.socialAdvice.solo?.[0] || '先把入口、洗手间和返程路线想好，现场会轻松很多。'}</p>
+                <p>{result.socialAdvice.solo?.[0] || '入口、洗手间和返程先想好。'}</p>
               </article>
             </div>
           </section>

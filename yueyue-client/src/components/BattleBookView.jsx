@@ -95,13 +95,13 @@ function DynamicPulseStrip({ input, successScore, venueRules, returnAdvice }) {
     {
       title: '当前场馆',
       value: displayText(input.venue, '等待场馆'),
-      note: venueRules ? '规则已命中，可以优先看官方提醒。' : '系统还没命中完整规则。',
+      note: venueRules ? '官方提醒已命中。' : '规则还在补。',
       tone: 'blue',
     },
     {
       title: '返程状态',
       value: getReturnStatusLabel(returnAdvice?.riskLevel),
-      note: '散场交通和赶车节奏要提前想。',
+      note: '散场节奏先想好。',
       tone: 'orange',
     },
     {
@@ -144,9 +144,9 @@ function HandbookCover({ battleBook, actions }) {
   return (
     <section className="panel-v3 panel-v3-light handbook-summary-hero">
       <div className="handbook-summary-copy">
-        <p className="section-kicker-v3">Itinerary Summary</p>
+        <p className="section-kicker-v3">活动详情</p>
         <h1>{displayText(input.eventName, '这次赴约')}</h1>
-        <p className="section-subcopy-v3">先把这次赴约最关键的时间、场馆、规则和提醒收成一份清楚的摘要，再往下看完整攻略手册。</p>
+        <p className="section-subcopy-v3">时间、场馆、规则和提醒，都先收在这一页里。</p>
         <div className="handbook-meta-row">
           {metaItems.map((item) => (
             <span className="handbook-meta-pill" key={item}>
@@ -165,7 +165,7 @@ function HandbookCover({ battleBook, actions }) {
           <p>{successScore?.summary}</p>
           {successScore?.improvementTips && successScore.improvementTips.length > 0 && (
             <div className="improvement-tips">
-              <strong>提分建议：</strong>
+              <strong>还可以再补</strong>
               <ul>
                 {successScore.improvementTips.map((tip, idx) => (
                   <li key={idx}>{tip}</li>
@@ -202,7 +202,7 @@ function GuideModules({ styleAdvice, foodAdvice, stayAdvice, ticketAdvice, seatA
       <div className="section-head-v3">
         <div>
           <p className="section-kicker-v3">攻略手册</p>
-          <h2>把衣食住行票社交拆开看，这次赴约会更顺</h2>
+          <h2>衣食住行票社交，一块块看</h2>
         </div>
       </div>
 
@@ -277,7 +277,7 @@ function RulesAndChecklist({ venueRules, risks, checklist }) {
           <div className="section-head-v3">
             <div>
               <p className="section-kicker-v3">场馆规则</p>
-              <h2>这座场馆的官方重点提醒</h2>
+              <h2>官方重点看这几条</h2>
             </div>
             <button className="hero-secondary-v3 compact" onClick={() => setShowFeedback(true)} type="button">
               我要纠错
@@ -305,7 +305,7 @@ function RulesAndChecklist({ venueRules, risks, checklist }) {
         <div className="section-head-v3">
           <div>
             <p className="section-kicker-v3">提前提醒你</p>
-            <h2>这些地方最容易忙乱，我先圈出来</h2>
+            <h2>这几处最容易忙乱</h2>
           </div>
         </div>
         <div className="risk-grid">
@@ -327,7 +327,7 @@ function RulesAndChecklist({ venueRules, risks, checklist }) {
         <div className="section-head-v3">
           <div>
             <p className="section-kicker-v3">出发前清单</p>
-            <h2>把要带的东西先理好，现场会踏实很多</h2>
+            <h2>出发前先收一遍</h2>
           </div>
         </div>
         <div className="checklist-grid lively-checklist">
@@ -374,7 +374,7 @@ function TimelineSection({ timeline, successScore, returnAdvice }) {
       <div className="section-head-v3">
         <div>
           <p className="section-kicker-v3">当天节奏</p>
-          <h2>像 itinerary 一样看这次活动，从到场到返程都更清楚</h2>
+          <h2>当天节奏，一路看到返程</h2>
         </div>
         <div className="planner-submit-badge">
           {successScore?.value || 0} 分 · {getReturnStatusLabel(returnAdvice?.riskLevel)}

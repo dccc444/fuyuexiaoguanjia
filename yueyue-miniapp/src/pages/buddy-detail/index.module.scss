@@ -1,0 +1,112 @@
+@use '@/styles/variables.scss' as *;
+
+.page {
+  min-height: 100vh;
+  padding: 24rpx $page-padding calc(180rpx + env(safe-area-inset-bottom));
+}
+
+.hero,
+.section,
+.tagWrap {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.hero,
+.card {
+  padding: 30rpx;
+  border-radius: 28rpx;
+  background: $color-bg-card;
+  box-shadow: $shadow-card;
+  border: 1rpx solid $color-border;
+}
+
+.eyebrow {
+  color: $color-primary;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-bold;
+}
+
+.title {
+  color: $color-text-primary;
+  font-size: 44rpx;
+  font-weight: $font-weight-bold;
+  line-height: 1.22;
+}
+
+.meta,
+.copy {
+  color: $color-text-secondary;
+  font-size: $font-size-sm;
+  line-height: $line-height-loose;
+}
+
+.tagRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  min-height: 50rpx;
+  padding: 0 18rpx;
+  border-radius: $radius-round;
+  background: $color-tag-bg;
+  color: $color-tag-text;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
+}
+
+.card {
+  margin-top: $spacing-lg;
+}
+
+.label {
+  color: $color-text-tertiary;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-bold;
+}
+
+.value {
+  color: $color-text-primary;
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+}
+
+.bottomBar {
+  position: fixed;
+  left: $page-padding;
+  right: $page-padding;
+  bottom: calc(32rpx + env(safe-area-inset-bottom));
+  display: flex;
+  gap: $spacing-sm;
+  padding: 16rpx;
+  border-radius: 28rpx;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: $shadow-float;
+  border: 1rpx solid $color-border;
+}
+
+.primaryButton,
+.secondaryButton {
+  @include button-reset;
+  flex: 1;
+  height: $button-height-md;
+  border-radius: $radius-button;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+}
+
+.primaryButton {
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
+  color: $color-text-white;
+}
+
+.secondaryButton {
+  border: 1rpx solid $color-border;
+  background: $color-bg-card;
+  color: $color-text-primary;
+}

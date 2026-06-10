@@ -25,10 +25,10 @@
   --ink-secondary: #666666;
   --muted: #999999;
 
-  /* Action - Primary Blue */
-  --primary: #2878FF;
-  --primary-hover: #1A6AE5;
-  --primary-soft: rgba(40, 120, 255, 0.1);
+  /* Action - Primary Pink */
+  --primary: #E65297;
+  --primary-hover: #CF3F83;
+  --primary-soft: rgba(230, 82, 151, 0.12);
 
   /* Status */
   --danger: #FF4D4F;
@@ -36,7 +36,7 @@
   --safe: #00C853;
 
   /* Tone Colors - Module Vertical Bar */
-  --tone-blue: #2878FF;    /* 行 */
+  --tone-blue: #E65297;    /* 行 */
   --tone-coral: #FF4081;  /* 衣/社交 */
   --tone-gold: #FF9500;    /* 食 */
   --tone-mint: #00C853;    /* 住 */
@@ -45,7 +45,7 @@
   /* Accent */
   --accent-cyan: #00D4FF;
   --accent-rose: #FF4081;
-  --accent-violet: #7B61FF;
+  --accent-violet: #B85AD7;
 
   /* Shadow - Subtle card shadow */
   --shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
@@ -102,6 +102,71 @@ button {
   background: transparent;
 }
 
+.app-shell-mobile {
+  padding: 12px;
+}
+
+.mobile-app-frame {
+  width: min(100%, 430px);
+  min-height: calc(100vh - 24px);
+  margin: 0 auto;
+}
+
+.mobile-topbar {
+  position: sticky;
+  top: 12px;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 16px;
+  padding: 14px;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid rgba(232, 232, 232, 0.95);
+  backdrop-filter: blur(18px);
+  box-shadow: 0 14px 36px rgba(217, 79, 143, 0.12);
+}
+
+.mobile-brand {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.mobile-brand > div {
+  min-width: 0;
+}
+
+.mobile-brand strong {
+  display: block;
+  font-size: 1rem;
+  line-height: 1.2;
+}
+
+.mobile-brand p {
+  margin: 3px 0 0;
+  color: #7c7282;
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+.mobile-top-action {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  padding: 0 14px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #f062a6, #d94588);
+  color: #ffffff;
+  font-weight: 700;
+  box-shadow: 0 10px 24px rgba(217, 69, 136, 0.2);
+}
+
 .topbar {
   width: 100%;
   margin: 0 auto 24px;
@@ -134,7 +199,7 @@ button {
   border-radius: 16px;
   display: grid;
   place-items: center;
-  background: linear-gradient(145deg, #2878FF, #1A6AE5);
+  background: linear-gradient(145deg, #F062A6, #D94588);
   color: #FFFFFF;
   font-weight: 700;
   box-shadow: var(--shadow);
@@ -163,6 +228,47 @@ button {
 .page-shell {
   width: 100%;
   margin: 0 auto;
+}
+
+.page-shell-mobile {
+  display: grid;
+  gap: 16px;
+  padding-bottom: 98px;
+}
+
+.mobile-tabbar {
+  position: fixed;
+  left: 50%;
+  bottom: 12px;
+  transform: translateX(-50%);
+  z-index: 30;
+  width: min(calc(100vw - 24px), 430px);
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  padding: 10px;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(232, 232, 232, 0.98);
+  backdrop-filter: blur(18px);
+  box-shadow: 0 18px 36px rgba(31, 36, 48, 0.12);
+}
+
+.mobile-tab-link {
+  display: grid;
+  place-items: center;
+  min-height: 48px;
+  padding: 8px 6px;
+  border-radius: 16px;
+  color: #7d7588;
+  font-size: 0.82rem;
+  font-weight: 700;
+  transition: background 160ms ease, color 160ms ease, transform 160ms ease;
+}
+
+.mobile-tab-link.active {
+  background: linear-gradient(180deg, #fff1f7, #ffe8f2);
+  color: #cf3f83;
 }
 
 .home-layout,
@@ -1242,7 +1348,10 @@ button {
 
 /* Home v2 - V3 Refresh */
 .app-shell-home {
-  background: #F5F7FA;
+  background:
+    radial-gradient(circle at top left, rgba(255, 214, 232, 0.9), transparent 22%),
+    radial-gradient(circle at top right, rgba(247, 196, 255, 0.5), transparent 18%),
+    linear-gradient(180deg, #FFF7FB 0%, #FFF2F8 100%);
 }
 
 .topbar-home {

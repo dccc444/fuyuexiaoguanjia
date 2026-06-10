@@ -80,9 +80,15 @@ async function initializeDatabase() {
       user_id TEXT NOT NULL,
       title TEXT NOT NULL,
       currency TEXT NOT NULL DEFAULT 'CNY',
+      default_participant_member_ids JSONB NOT NULL DEFAULT '[]'::jsonb,
       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
       updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     );
+  `)
+
+  await db.query(`
+    ALTER TABLE expense_books
+    ADD COLUMN IF NOT EXISTS default_participant_member_ids JSONB NOT NULL DEFAULT '[]'::jsonb;
   `)
 
   await db.query(`

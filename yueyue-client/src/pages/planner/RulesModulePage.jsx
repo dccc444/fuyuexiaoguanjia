@@ -1,3 +1,4 @@
+
 import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { getVenueRulePreview, listVenueRules } from '../../api'
@@ -112,7 +113,7 @@ export function RulesModulePage() {
         if (!active) return
         setRule(data.item || null)
         if (!data.item) {
-          setError('目前还没有命中这座场馆的规则，可以先换成系统内场馆，或继续走旧创建页生成完整手册。')
+          setError('暂时还没有这座场馆的规则信息，换个常用场馆名称会更容易命中。')
         }
       })
       .catch((requestError) => {
@@ -157,15 +158,13 @@ export function RulesModulePage() {
     <section className="planner-module-card">
       <div className="planner-module-header">
         <div>
-          <p className="planner-section-title">场馆规则模块</p>
-          <h2>先把这座场馆的入场规矩看清楚</h2>
-          <p className="planner-module-copy">
-            这个模块现在支持直接手填城市和场馆，不再强依赖其他模块。规则会优先展示禁带、入口、交通和来源更新时间，方便你单独快速确认风险。
-          </p>
+          <p className="planner-section-title">场馆规则</p>
+          <h2>把进场规则收好</h2>
+          <p className="planner-module-copy">禁带、入口和交通，都看这里。</p>
         </div>
         <div className="planner-module-badge">
           <strong>{rule?.matched ? '已命中' : loadingRule ? '查询中' : '待查询'}</strong>
-          <span>{draft.city && draft.venue ? '已补城市和场馆' : '先补城市和场馆'}</span>
+          <span>{draft.city && draft.venue ? '已补城市和场馆' : '补上城市和场馆后会更准'}</span>
         </div>
       </div>
 
@@ -222,17 +221,17 @@ export function RulesModulePage() {
 
       {!draft.city || !draft.venue ? (
         <section className="planner-tip-card">
-          <p className="planner-section-title">使用提示</p>
+          <p className="planner-section-title">填写提醒</p>
           <ul>
-            <li>你可以先在这里直接选择城市和系统场馆，不必回到完整创建页。</li>
-            <li>如果想让后续返程、票务模块都直接复用，建议先把基础信息模块也补完整。</li>
+            <li>城市和场馆越准，规则越容易命中。</li>
+            <li>场馆名称越准确，入口和禁带提醒就越靠谱。</li>
             <li>
-              现在只要补好城市和场馆，就能单独查规则。需要的话可前往
+              活动信息还没补齐的话，可以去
               {' '}
               <Link className="planner-inline-link" to="/planner/basic">
-                基础信息模块
+                基础信息
               </Link>
-              继续完善草稿。
+              补齐。
             </li>
           </ul>
         </section>
@@ -241,7 +240,7 @@ export function RulesModulePage() {
       {loadingRule ? (
         <section className="planner-rule-loading">
           <strong>正在查询场馆规则...</strong>
-          <p>会优先返回入口提醒、禁带物、可带条件和交通建议。</p>
+          <p>正在整理入口、禁带和交通提醒。</p>
         </section>
       ) : null}
 

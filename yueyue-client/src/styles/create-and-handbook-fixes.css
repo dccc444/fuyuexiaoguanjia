@@ -730,3 +730,347 @@
     width: 100%;
   }
 }
+
+/* ============================================
+   MY TRIPS + DETAIL PAGE MOBILE PRODUCT POLISH
+   ============================================ */
+
+.trips-shell-hero-v4 {
+  display: grid;
+  gap: 16px;
+  background:
+    radial-gradient(circle at top left, rgba(240, 98, 166, 0.16), transparent 32%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(255, 246, 250, 0.98));
+}
+
+.trips-hero-main {
+  display: grid;
+  gap: 10px;
+}
+
+.trips-hero-main h1 {
+  margin: 0;
+}
+
+.trips-hero-pills,
+.detail-page-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.trips-hero-pills span,
+.detail-page-pills span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(230, 82, 151, 0.12);
+  background: #fff8fb;
+  color: #7d6177;
+  font-size: 0.84rem;
+  font-weight: 700;
+}
+
+.trips-hero-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.trip-featured-card-v4 {
+  display: grid;
+  gap: 16px;
+}
+
+.trip-featured-head {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.trip-featured-head h2 {
+  margin: 0;
+}
+
+.trip-featured-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.trip-featured-summary-card {
+  display: grid;
+  gap: 6px;
+  padding: 14px;
+  border-radius: 18px;
+  border: 1px solid rgba(230, 82, 151, 0.1);
+  background: linear-gradient(180deg, #fffafc, #ffffff);
+}
+
+.trip-featured-summary-card span {
+  color: #8f7286;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.trip-featured-summary-card strong {
+  color: #2a2340;
+  font-size: 0.98rem;
+  line-height: 1.45;
+}
+
+.trip-featured-actions-v4,
+.trip-content-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.trip-featured-actions-v4 .hero-primary-v3,
+.trip-featured-actions-v4 .hero-secondary-v3,
+.trip-content-actions .hero-primary-v3,
+.trip-content-actions .hero-secondary-v3 {
+  min-height: 42px;
+  border-radius: 16px;
+}
+
+.trip-content-card {
+  gap: 10px;
+  border-radius: 22px;
+  border: 1px solid rgba(230, 82, 151, 0.1);
+  background: linear-gradient(180deg, #fffdfd, #fff7fb);
+}
+
+.trip-content-card .action-cluster {
+  margin-top: 6px;
+}
+
+.my-mobile-grid {
+  display: grid;
+  gap: 16px;
+}
+
+.my-quick-action-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.my-quick-action-card {
+  display: grid;
+  gap: 8px;
+  width: 100%;
+  padding: 16px;
+  border-radius: 20px;
+  text-align: left;
+  border: 1px solid rgba(230, 82, 151, 0.1);
+  background: linear-gradient(180deg, #fffdfd, #fff8fb);
+}
+
+.my-quick-action-card span {
+  color: #8f7286;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.my-quick-action-card strong {
+  color: #2a2340;
+  font-size: 1rem;
+  line-height: 1.4;
+}
+
+.my-quick-action-card p {
+  margin: 0;
+  color: #6f6478;
+  font-size: 0.9rem;
+}
+
+.my-quick-action-card.tone-blue {
+  background: linear-gradient(180deg, #fffaff, #f8fbff);
+}
+
+.my-quick-action-card.tone-mint {
+  background: linear-gradient(180deg, #fcfffe, #f6fffb);
+}
+
+.my-mobile-panel {
+  display: grid;
+  gap: 14px;
+}
+
+.my-mobile-list {
+  display: grid;
+  gap: 12px;
+}
+
+.my-mobile-list-card {
+  width: 100%;
+  display: grid;
+  gap: 6px;
+  padding: 14px 16px;
+  border: 1px solid rgba(230, 82, 151, 0.1);
+  border-radius: 18px;
+  background: linear-gradient(180deg, #fffdfd, #fff8fb);
+  text-align: left;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.my-mobile-list-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 28px rgba(217, 69, 136, 0.08);
+}
+
+.my-mobile-list-card span {
+  color: #8f7286;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.my-mobile-list-card strong {
+  color: #2a2340;
+  font-size: 0.98rem;
+  line-height: 1.4;
+}
+
+.my-mobile-list-card p {
+  margin: 0;
+  color: #6f6478;
+  font-size: 0.9rem;
+}
+
+.mobile-text-link {
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: #d94588;
+  font-size: 0.92rem;
+  font-weight: 700;
+}
+
+.detail-page-hero {
+  display: grid;
+  gap: 16px;
+  background:
+    radial-gradient(circle at top left, rgba(240, 98, 166, 0.16), transparent 34%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(255, 246, 250, 0.98));
+}
+
+.detail-page-copy {
+  display: grid;
+  gap: 10px;
+}
+
+.detail-page-copy h1 {
+  margin: 0;
+}
+
+.detail-page-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.detail-page-actions .hero-primary-v3,
+.detail-page-actions .hero-secondary-v3 {
+  min-height: 46px;
+  border-radius: 16px;
+}
+
+.detail-layout-inner {
+  gap: 16px;
+}
+
+.handbook-summary-hero {
+  border-radius: 26px;
+  background:
+    radial-gradient(circle at top left, rgba(240, 98, 166, 0.14), transparent 34%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(255, 247, 251, 0.98));
+}
+
+.handbook-score-overview,
+.pulse-strip-card,
+.handbook-summary-card,
+.handbook-guide-card,
+.handbook-module {
+  border-radius: 22px;
+}
+
+.handbook-guide-card,
+.risk-card,
+.check-card,
+.timeline-card {
+  border: 1px solid rgba(230, 82, 151, 0.1);
+  background: linear-gradient(180deg, #fffdfd, #fff8fb);
+}
+
+.handbook-cover-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.handbook-cover-actions .hero-primary-v3,
+.handbook-cover-actions .hero-secondary-v3 {
+  min-height: 42px;
+  border-radius: 16px;
+}
+
+.detail-bottom-bar {
+  position: sticky;
+  bottom: 86px;
+  z-index: 10;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid rgba(230, 82, 151, 0.12);
+  border-radius: 22px;
+  background: rgba(255, 250, 252, 0.96);
+  backdrop-filter: blur(14px);
+  box-shadow: 0 18px 34px rgba(217, 69, 136, 0.12);
+}
+
+.detail-bottom-bar .hero-primary-v3,
+.detail-bottom-bar .hero-secondary-v3 {
+  min-height: 46px;
+  border-radius: 16px;
+}
+
+@media (max-width: 820px) {
+  .my-quick-action-grid,
+  .trip-featured-summary,
+  .trips-hero-actions,
+  .detail-page-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .trip-featured-head {
+    display: grid;
+  }
+
+  .trip-featured-actions-v4,
+  .trip-content-actions,
+  .handbook-cover-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .trip-featured-actions-v4 .hero-primary-v3,
+  .trip-featured-actions-v4 .hero-secondary-v3,
+  .trip-content-actions .hero-primary-v3,
+  .trip-content-actions .hero-secondary-v3,
+  .detail-page-actions .hero-primary-v3,
+  .detail-page-actions .hero-secondary-v3,
+  .handbook-cover-actions .hero-primary-v3,
+  .handbook-cover-actions .hero-secondary-v3 {
+    width: 100%;
+  }
+
+  .detail-bottom-bar {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+}

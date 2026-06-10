@@ -81,19 +81,19 @@ export function MyBuddyPostsPage() {
       <div className="planner-module-header">
         <div>
           <p className="planner-section-title">我的找搭子发布</p>
-          <h2>先把自己发过的需求集中看起来</h2>
+          <h2>我发过的搭子邀约，都收在这</h2>
           <p className="planner-module-copy">
-            第 2 步补齐管理能力。现在你可以在这里直接编辑、删除、下架或重新上架自己的帖子。
+            想改内容、暂停展示还是重新上架，都能直接处理。
           </p>
         </div>
         <div className="planner-submit-row">
           <Link className="hero-primary-v3" to="/buddy/new">
-            再发一条需求
+            再发一条邀约
           </Link>
         </div>
       </div>
 
-      {loading ? <section className="planner-rule-empty"><p>正在读取我的发布...</p></section> : null}
+      {loading ? <section className="planner-rule-empty"><p>正在带出我的发布...</p></section> : null}
       {error ? <section className="planner-rule-empty"><strong>读取失败</strong><p>{error}</p></section> : null}
       {actionMessage ? <section className="planner-rule-empty"><p>{actionMessage}</p></section> : null}
 
@@ -179,8 +179,11 @@ export function MyBuddyPostsPage() {
           </div>
         ) : (
           <section className="planner-rule-empty">
-            <strong>你还没有发布过需求</strong>
-            <p>先发第一条，再回来统一管理。</p>
+            <strong>你还没有发布过搭子邀约</strong>
+            <p>发出第一条后，想一起的人、收藏和状态变化都会收在这里。</p>
+            <Link className="hero-primary-v3 compact" to="/buddy/new">
+              去发第一条
+            </Link>
           </section>
         )
       ) : null}

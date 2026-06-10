@@ -47,7 +47,7 @@ export function BuddyReportDialog({ open, submitting, onClose, onSubmit }) {
       >
         <div className="dialog-header">
           <div>
-            <p className="planner-section-title">举报这条需求</p>
+            <p className="planner-section-title">举报这条帖子</p>
             <h3 id="buddy-report-title">告诉平台具体是什么问题</h3>
           </div>
           <button className="ghost-button" onClick={onClose} type="button">

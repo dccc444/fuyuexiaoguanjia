@@ -8,6 +8,7 @@ import {
   removeExpenseMember,
   saveBudgetPlan,
   suggestBudgetPlan,
+  updateExpenseBookDefaults,
 } from '../api'
 import { getTripMeta } from '../utils/tripMeta'
 
@@ -30,8 +31,15 @@ const initialExpenseForm = {
   note: '',
 }
 
-function hydrateDashboardState(data, setDashboard, setBudgetForm, setExpenseForm) {
+function getDefaultParticipantIds(data) {
+  const configuredIds = Array.isArray(data.expenseBook?.defaultParticipantMemberIds) ? data.expenseBook.defaultParticipantMemberIds : []
+  return configuredIds.length ? configuredIds : data.members.map((member) => member.id)
+}
+
+function hydrateDashboardState(data, setDashboard, setBudgetForm, setExpenseForm, setDefaultParticipantMemberIds) {
+  const defaultParticipantIds = getDefaultParticipantIds(data)
   setDashboard(data)
+  setDefaultParticipantMemberIds(defaultParticipantIds)
   setBudgetForm({
     totalBudget: data.budgetPlan?.totalBudget || '',
     strategy: data.budgetPlan?.payload?.strategy || 'balanced',
@@ -43,7 +51,7 @@ function hydrateDashboardState(data, setDashboard, setBudgetForm, setExpenseForm
   setExpenseForm((current) => ({
     ...current,
     paidByMemberId: current.paidByMemberId || data.members[0]?.id || '',
-    participantMemberIds: current.participantMemberIds.length ? current.participantMemberIds : data.members.map((member) => member.id),
+    participantMemberIds: current.participantMemberIds.length ? current.participantMemberIds : defaultParticipantIds,
   }))
 }
 
@@ -68,8 +76,8 @@ function MetricCard({ title, value, note, tone }) {
 function buildBudgetAdvice({ hasBudget, remainingBudget, overBudgetCategories, sortedBudgetCategories }) {
   if (!hasBudget) {
     return {
-      title: '先把总预算定住',
-      text: '先填一个总预算，再让系统帮你按票务、交通、住宿、餐饮、物料和备用金拆开，后面每一笔支出才更容易盯。',
+      title: '先定个总预算',
+      text: '先定总预算，再拆到各项里。',
       tone: 'blue',
     }
   }
@@ -77,9 +85,9 @@ function buildBudgetAdvice({ hasBudget, remainingBudget, overBudgetCategories, s
   if (remainingBudget < 0) {
     return {
       title: '这次预算已经超了',
-      text: `当前总预算已经超出 ${formatCurrency(Math.abs(remainingBudget))}，建议先收一收 ${overBudgetCategories
+      text: `已经超出 ${formatCurrency(Math.abs(remainingBudget))}，先收一收 ${overBudgetCategories
         .map((item) => item.label)
-        .join('、')} 这几项，别把备用金也一起吃掉。`,
+        .join('、')}。`,
       tone: 'red',
     }
   }
@@ -87,7 +95,7 @@ function buildBudgetAdvice({ hasBudget, remainingBudget, overBudgetCategories, s
   if (overBudgetCategories.length > 0) {
     return {
       title: '有分类开始冒头了',
-      text: `${overBudgetCategories.map((item) => item.label).join('、')} 已经超出原计划，后面如果还有新增支出，最好优先从备用金或者餐饮、物料里腾空间。`,
+      text: `${overBudgetCategories.map((item) => item.label).join('、')} 已经超了，后面收一收。`,
       tone: 'amber',
     }
   }
@@ -96,14 +104,14 @@ function buildBudgetAdvice({ hasBudget, remainingBudget, overBudgetCategories, s
   if (topCategory) {
     return {
       title: '整体预算还算稳',
-      text: `目前花得最多的是 ${topCategory.label}，但总预算还在可控范围内。继续按这个节奏走，后面更适合盯紧散场返程和临时加购。`,
+      text: `${topCategory.label} 花得最多，但整体还稳。`,
       tone: 'mint',
     }
   }
 
   return {
     title: '预算已经准备好了',
-    text: '现在还没开始记支出，这个阶段最适合先把同行人和预计大头费用定下来，后面现场记账会更顺。',
+    text: '先把同行人和几笔大头费用想清楚。',
     tone: 'blue',
   }
 }
@@ -116,6 +124,7 @@ export function MoneyManagerPage() {
   const [error, setError] = useState('')
   const [toast, setToast] = useState('')
   const [savingBudget, setSavingBudget] = useState(false)
+  const [savingDefaults, setSavingDefaults] = useState(false)
   const [submittingMember, setSubmittingMember] = useState(false)
   const [submittingItem, setSubmittingItem] = useState(false)
   const [activeExpenseFilter, setActiveExpenseFilter] = useState('all')
@@ -129,6 +138,7 @@ export function MoneyManagerPage() {
     payChannel: '微信',
   })
   const [expenseForm, setExpenseForm] = useState(initialExpenseForm)
+  const [defaultParticipantMemberIds, setDefaultParticipantMemberIds] = useState([])
   const [toastTimerId, setToastTimerId] = useState(null)
 
   async function loadDashboard({ silent = false } = {}) {
@@ -140,7 +150,7 @@ export function MoneyManagerPage() {
 
     try {
       const data = await getMoneyDashboard(id)
-      hydrateDashboardState(data, setDashboard, setBudgetForm, setExpenseForm)
+      hydrateDashboardState(data, setDashboard, setBudgetForm, setExpenseForm, setDefaultParticipantMemberIds)
       setError('')
       return data
     } catch (loadError) {
@@ -163,7 +173,7 @@ export function MoneyManagerPage() {
       try {
         const data = await getMoneyDashboard(id)
         if (!active) return
-        hydrateDashboardState(data, setDashboard, setBudgetForm, setExpenseForm)
+        hydrateDashboardState(data, setDashboard, setBudgetForm, setExpenseForm, setDefaultParticipantMemberIds)
         setError('')
       } catch (loadError) {
         if (active) {
@@ -281,7 +291,7 @@ export function MoneyManagerPage() {
         ...initialExpenseForm,
         category: expenseForm.category,
         paidByMemberId: dashboard.members[0]?.id || '',
-        participantMemberIds: dashboard.members.map((member) => member.id),
+        participantMemberIds: defaultParticipantMemberIds,
       })
       await loadDashboard({ silent: true })
       showToast('这笔支出已经记好了。')
@@ -314,6 +324,46 @@ export function MoneyManagerPage() {
     })
   }
 
+  async function handleSaveDefaultParticipants() {
+    if (!dashboard?.expenseBook) return
+
+    try {
+      setSavingDefaults(true)
+      const data = await updateExpenseBookDefaults(dashboard.expenseBook.id, {
+        defaultParticipantMemberIds,
+      })
+      setDefaultParticipantMemberIds(data.item.defaultParticipantMemberIds)
+      setExpenseForm((current) => ({
+        ...current,
+        participantMemberIds: data.item.defaultParticipantMemberIds,
+      }))
+      setDashboard((current) =>
+        current
+          ? {
+              ...current,
+              expenseBook: {
+                ...current.expenseBook,
+                defaultParticipantMemberIds: data.item.defaultParticipantMemberIds,
+              },
+            }
+          : current,
+      )
+      showToast('默认 AA 人选已经保存。')
+    } catch (saveError) {
+      setError(saveError.message)
+    } finally {
+      setSavingDefaults(false)
+    }
+  }
+
+  function toggleDefaultParticipant(memberId) {
+    setDefaultParticipantMemberIds((current) => {
+      const exists = current.includes(memberId)
+      const next = exists ? current.filter((item) => item !== memberId) : [...current, memberId]
+      return next
+    })
+  }
+
   async function handleCopySettlementText() {
     if (!dashboard?.settlement) return
 
@@ -335,7 +385,7 @@ export function MoneyManagerPage() {
   }
 
   if (loading) {
-    return <section className="panel-v3 panel-v3-light loading-state">正在打开这场赴约的预算与记账...</section>
+    return <section className="panel-v3 panel-v3-light loading-state">正在打开这场活动的预算与 AA...</section>
   }
 
   if (error && !dashboard) {
@@ -357,8 +407,8 @@ export function MoneyManagerPage() {
   const sceneType = battleBook.input.sceneType
   const sceneSummary =
     sceneType === 'match' || sceneType === 'sports'
-      ? '门票、交通、夜宵和赛后返程都能跟着这场比赛走。'
-      : '票务、交通、住宿、餐饮和物料花费都会跟着这场赴约走。'
+      ? '把门票、交通、夜宵和赛后返程都记在同一本账里。'
+      : '票务、交通、住宿、餐饮和周边都放在同一本账里。'
 
   const sortedBudgetCategories = [...(budgetSummary?.categories || [])].sort((a, b) => {
     if (a.overBudget !== b.overBudget) {
@@ -393,10 +443,10 @@ export function MoneyManagerPage() {
 
       <section className="panel-v3 panel-v3-light money-hero money-hero-v2">
         <div>
-          <p className="section-kicker-v3">Money Planner</p>
-          <h1>预算管家 + 记账分账</h1>
+          <p className="section-kicker-v3">记账与 AA</p>
+          <h1>{tripMeta.eventName || '这次活动'}的预算本</h1>
           <p className="section-subcopy-v3">
-            {tripMeta.eventName} 路 {tripMeta.city} 路 {tripMeta.venue}
+            {[tripMeta.city, tripMeta.venue, tripMeta.eventDate].filter(Boolean).join(' · ')}
           </p>
           <p className="money-hero-note">{sceneSummary}</p>
         </div>
@@ -411,10 +461,10 @@ export function MoneyManagerPage() {
       </section>
 
       <section className="money-metrics-grid">
-        <MetricCard note="整场赴约可以花到哪里，一眼先定住。" title="总预算" tone="blue" value={hasBudget ? formatCurrency(totalBudget) : '待设置'} />
-        <MetricCard note="已经记进来的所有票务、交通、住宿和吃喝支出。" title="已花金额" tone="orange" value={formatCurrency(totalSpent)} />
-        <MetricCard note="预算里还剩多少，最适合盯着这个数控制节奏。" title="剩余金额" tone={remainingBudget < 0 ? 'coral' : 'mint'} value={formatCurrency(remainingBudget)} />
-        <MetricCard note="当前 AA 清单里还没有结完的差额。" title="待结算" tone="pink" value={formatCurrency(pendingSettlement)} />
+        <MetricCard note="定个预算，花起来更有数。" title="总预算" tone="blue" value={hasBudget ? formatCurrency(totalBudget) : '待设置'} />
+        <MetricCard note="已经记下的票务、交通、住宿和吃喝。" title="已花金额" tone="orange" value={formatCurrency(totalSpent)} />
+        <MetricCard note="还剩多少，一眼就知道。" title="剩余金额" tone={remainingBudget < 0 ? 'coral' : 'mint'} value={formatCurrency(remainingBudget)} />
+        <MetricCard note="谁该补谁该收，直接发群里。" title="待结算" tone="pink" value={formatCurrency(pendingSettlement)} />
       </section>
 
       <section className={`panel-v3 panel-v3-light budget-advice-panel tone-${budgetAdvice.tone}`}>
@@ -438,7 +488,7 @@ export function MoneyManagerPage() {
           <div className="section-head-v3">
             <div>
               <p className="section-kicker-v3">预算管家</p>
-              <h2>先把这次赴约的钱分好，再决定哪里该省哪里该冲</h2>
+              <h2>把预算收好</h2>
             </div>
           </div>
 
@@ -505,7 +555,7 @@ export function MoneyManagerPage() {
                       ) : null}
                     </>
                   ) : (
-                    <small>先保存预算，后面这里会开始监控超支。</small>
+                    <small>保存预算后，这里会开始提醒超支。</small>
                   )}
                 </label>
               )
@@ -517,7 +567,7 @@ export function MoneyManagerPage() {
           <div className="section-head-v3">
             <div>
               <p className="section-kicker-v3">同行人</p>
-              <h2>先把一起花钱的人加进来，后面的 AA 才会准</h2>
+              <h2>把同行人收进来</h2>
             </div>
           </div>
 
@@ -550,6 +600,31 @@ export function MoneyManagerPage() {
               </article>
             ))}
           </div>
+
+          <div className="money-default-aa-card">
+            <div className="money-default-aa-head">
+              <div>
+                <strong>整本默认 AA 人选</strong>
+                <p>新支出会默认带上这里的人，单笔也能随时改。</p>
+              </div>
+              <button className="hero-secondary-v3 compact" disabled={savingDefaults} onClick={handleSaveDefaultParticipants} type="button">
+                {savingDefaults ? '保存中...' : '保存默认 AA'}
+              </button>
+            </div>
+            <div className="choice-chip-row">
+              {members.map((member) => {
+                const active = defaultParticipantMemberIds.includes(member.id)
+                return (
+                  <button className={active ? 'choice-chip active' : 'choice-chip'} key={`default-${member.id}`} onClick={() => toggleDefaultParticipant(member.id)} type="button">
+                    {member.name}
+                  </button>
+                )
+              })}
+            </div>
+            <p className="money-default-aa-note">
+              当前默认：{defaultParticipantMemberIds.map((memberId) => members.find((member) => member.id === memberId)?.name).filter(Boolean).join('、') || '未设置'}
+            </p>
+          </div>
         </section>
       </section>
 
@@ -557,7 +632,7 @@ export function MoneyManagerPage() {
         <div className="section-head-v3">
           <div>
             <p className="section-kicker-v3">AI 记账</p>
-            <h2>把每一笔票务、交通、住宿、餐饮和物料都记进去</h2>
+              <h2>把每笔支出记下</h2>
           </div>
         </div>
 
@@ -582,7 +657,7 @@ export function MoneyManagerPage() {
           <input value={expenseForm.note} onChange={(event) => setExpenseForm((current) => ({ ...current, note: event.target.value }))} placeholder="备注，可不填" />
 
           <div className="participant-selector">
-            <span>这笔钱算到谁头上</span>
+            <span>这笔钱由谁一起 AA</span>
             <div className="choice-chip-row">
               {members.map((member) => {
                 const active = expenseForm.participantMemberIds.includes(member.id)
@@ -593,6 +668,7 @@ export function MoneyManagerPage() {
                 )
               })}
             </div>
+            <p className="money-default-aa-note">默认沿用整本设置，这一笔也能随时改。</p>
           </div>
 
           <button className="hero-primary-v3" disabled={submittingItem} type="submit">
@@ -606,7 +682,7 @@ export function MoneyManagerPage() {
           <div className="section-head-v3">
             <div>
               <p className="section-kicker-v3">支出列表</p>
-              <h2>按分类筛一遍，最容易看出哪一块正在往上冒</h2>
+              <h2>每笔花费都在这</h2>
             </div>
           </div>
 
@@ -622,7 +698,7 @@ export function MoneyManagerPage() {
 
           <div className="money-list-stack">
             {filteredItems.length === 0 ? (
-              <p className="section-subcopy-v3">{activeExpenseFilter === 'all' ? '还没有支出，先记第一笔票务或交通。' : '这个分类下面暂时还没有支出。'}</p>
+              <p className="section-subcopy-v3">{activeExpenseFilter === 'all' ? '还没有支出记录。' : '这个分类下还没有支出。'}</p>
             ) : null}
 
             {filteredItems.map((item) => {
@@ -635,6 +711,13 @@ export function MoneyManagerPage() {
                     <strong>{item.title}</strong>
                     <p>
                       {categoryLabel} 路 {payer?.name || '未知付款人'}
+                    </p>
+                    <p className="expense-item-note">
+                      AA 人员：
+                      {item.participantMemberIds
+                        ?.map((memberId) => members.find((member) => member.id === memberId)?.name)
+                        .filter(Boolean)
+                        .join('、') || '未记录'}
                     </p>
                     {item.note ? <div className="expense-item-note">{item.note}</div> : null}
                   </div>
@@ -654,7 +737,7 @@ export function MoneyManagerPage() {
           <div className="section-head-v3">
             <div>
               <p className="section-kicker-v3">AA 分账</p>
-              <h2>系统已经帮你把谁该转给谁算好了</h2>
+              <h2>这笔钱怎么算清</h2>
             </div>
             <button className="hero-secondary-v3 compact" onClick={handleCopySettlementText} type="button">
               一键复制结算文案
@@ -674,11 +757,11 @@ export function MoneyManagerPage() {
             ))}
           </div>
 
-          <div className="settlement-copy-tip">复制后可以直接发给搭子，少解释一轮谁该转给谁。</div>
+          <div className="settlement-copy-tip">复制后可以直接发到群里或私聊，不用再手动解释。</div>
 
           <div className="settlement-transfer-list">
             {settlement.transfers.length === 0 ? (
-              <p className="section-subcopy-v3">现在还没有需要结算的差额，大家基本已经平了。</p>
+              <p className="section-subcopy-v3">目前没有需要补差的金额。</p>
             ) : (
               settlement.transfers.map((transfer) => (
                 <article className="settlement-transfer-card surface-card" key={`${transfer.fromMemberId}-${transfer.toMemberId}`}>

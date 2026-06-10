@@ -33,6 +33,16 @@ function TicketList({ title, items, tone = 'soft' }) {
   )
 }
 
+function ResultSnapshotCard({ eyebrow, title, summary }) {
+  return (
+    <article className="planner-snapshot-card">
+      <span>{eyebrow}</span>
+      <strong>{title}</strong>
+      <p>{summary}</p>
+    </article>
+  )
+}
+
 export function TicketModulePage() {
   const { draft, updateDraft } = usePlannerDraft()
   const [submitting, setSubmitting] = useState(false)
@@ -81,36 +91,57 @@ export function TicketModulePage() {
     updateDraft({ [name]: value })
   }
 
+  const ticketStatusTitle = result?.ticketAdvice?.status || (draft.hasTicket ? '已购票' : '还没买票')
+  const zoneSummary =
+    result?.seatAdvice?.zoneSummary ||
+    (draft.ticketArea ? `重点先看 ${draft.ticketArea}，入口别走错。` : '票档还没定时，先看分区图和实名规则。')
+  const ticketSummaryCards = result
+    ? [
+        {
+          eyebrow: '票务状态',
+          title: ticketStatusTitle,
+          summary: draft.hasTicket ? '分区、入口和散场先看。' : '票档和位置先想明白。',
+        },
+        {
+          eyebrow: '重点分区',
+          title: draft.ticketArea || '待确认',
+          summary: draft.ticketArea ? '先对入口。' : '票档确定后更好判断。',
+        },
+        {
+          eyebrow: '入场重点',
+          title: result?.seatAdvice?.entryTips?.[0] ? '入口优先看清' : '实名和规则先看清',
+          summary: result?.seatAdvice?.entryTips?.[0] || '实名、分区图和官方指引先看清。',
+        },
+      ]
+    : []
+
   return (
     <section className="planner-module-card">
       <div className="planner-module-header">
         <div>
-          <p className="planner-section-title">门票与位置模块</p>
-          <h2>先把票务状态和分区位置看清楚</h2>
-          <p className="planner-module-copy">
-            这个模块现在会在当前页补齐最小活动信息，再收集你是否已购票和大致票档 / 看台信息，然后直接返回票务提醒、分区差异、入场建议和散场建议。
-          </p>
+          <p className="planner-section-title">门票与位置</p>
+          <h2>把票档分区收好</h2>
+          <p className="planner-module-copy">票档、分区、入口和散场，都看这里。</p>
         </div>
         <div className="planner-module-badge">
           <strong>{result?.ticketAdvice ? `票务 ${result.ticketAdvice.status}` : '待生成'}</strong>
-          <span>{draft.ticketArea ? '已补分区信息' : draft.hasTicket ? '已填购票状态' : '先填票务信息'}</span>
+          <span>{draft.ticketArea ? '分区已填' : draft.hasTicket ? '购票状态已填' : '先填票务信息'}</span>
         </div>
       </div>
 
       {missingBasics.length > 0 ? (
         <section className="planner-tip-card">
-          <p className="planner-section-title">建议先补充</p>
+          <p className="planner-section-title">当前还缺少</p>
           <ul>
             <li>当前还缺少：{missingBasics.join('、')}。</li>
-            <li>你现在仍然可以先看票务和位置建议，但如果场馆和日期未补齐，结果会偏通用。</li>
+            <li>场馆和日期越明确，分区和入场建议会越贴近这场活动。</li>
             <li>
-              如果想让分区和入场建议更像这场活动，建议先去
+              补齐
               {' '}
               <Link className="planner-inline-link" to="/planner/basic">
-                基础信息模块
+                基础信息
               </Link>
-              {' '}
-              补全活动信息。
+              。
             </li>
           </ul>
         </section>
@@ -200,7 +231,7 @@ export function TicketModulePage() {
           <button className="hero-primary-v3" disabled={submitting} type="submit">
             {submitting ? '正在生成票务建议...' : '生成门票与位置建议'}
           </button>
-          <span className="planner-submit-hint">先复用现有完整生成接口，但这里只展示票务与位置结果。</span>
+          <span className="planner-submit-hint">票务、分区和进出场提醒会一起出来。</span>
         </div>
       </form>
 
@@ -226,22 +257,25 @@ export function TicketModulePage() {
             </div>
 
             <p className="planner-rule-summary">
-              {result.seatAdvice?.zoneSummary ||
-                (draft.ticketArea
-                  ? `你这次重点关注的区域是“${draft.ticketArea}”，建议提前确认分区图和对应入口。`
-                  : '如果票档信息还不明确，至少提前确认官方入口、分区图和实名规则。')}
+              {zoneSummary}
             </p>
 
+            <div className="planner-snapshot-grid">
+              {ticketSummaryCards.map((item) => (
+                <ResultSnapshotCard eyebrow={item.eyebrow} key={item.eyebrow} summary={item.summary} title={item.title} />
+              ))}
+            </div>
+
             <div className="planner-transport-grid">
-              <article className="planner-transport-card">
+              <article className="planner-transport-card planner-transport-card-product">
                 <p className="planner-section-title">入场方向</p>
                 <strong>入口别走错</strong>
-                <p>{result.seatAdvice?.entryTips?.[0] || '先确认票面分区和检票口，再开始排队。'}</p>
+                <p>{result.seatAdvice?.entryTips?.[0] || '先确认分区和检票口。'}</p>
               </article>
-              <article className="planner-transport-card">
+              <article className="planner-transport-card planner-transport-card-product">
                 <p className="planner-section-title">离场方向</p>
                 <strong>散场提前分流</strong>
-                <p>{result.seatAdvice?.exitTips?.[0] || '散场路线最好提前想好，不要在出口再临时决定。'}</p>
+                <p>{result.seatAdvice?.exitTips?.[0] || '散场路线别临时决定。'}</p>
               </article>
             </div>
           </section>

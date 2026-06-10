@@ -33,23 +33,23 @@ const sceneConfig = {
     title: '把这次见面先安排顺',
     targetLabel: '艺人 / 主演',
     targetPlaceholder: '例如：周杰伦、陶喆、时代少年团',
-    searchHint: '先把艺人、城市、场馆和日期定清楚，再把偏好告诉我。',
+    searchHint: '艺人、城市、场馆和日期先定好。',
     highlights: ['应援提醒', '出片安排', '票档分区', '散场返程'],
   },
   festival: {
     label: '音乐节',
-    title: '先把这次音乐节玩得轻松一点',
+    title: '把这场音乐节玩顺',
     targetLabel: '最想看的乐队 / 舞台',
     targetPlaceholder: '例如：草莓音乐节主舞台、万能青年旅店',
-    searchHint: '音乐节更看重舞台切换、补给和体力节奏，先把主目标圈出来。',
+    searchHint: '先圈主目标，节奏更好排。',
     highlights: ['舞台切换', '补给防晒', '住宿返程', '会合提醒'],
   },
   match: {
     label: '球赛',
-    title: '先把比赛这天的路线和节奏理顺',
+    title: '把比赛这天安排顺',
     targetLabel: '主队 / 比赛',
     targetPlaceholder: '例如：国安、海港、欧冠决赛',
-    searchHint: '球赛更看重看台、入口和散场动线，先把场馆和分区定好。',
+    searchHint: '场馆和分区先定好。',
     highlights: ['看台入口', '观赛节奏', '散场路线', '返程安排'],
   },
 }
@@ -513,7 +513,7 @@ export function CreatePlanPage() {
             {fromId ? (
               <div className="create-inline-tip create-inline-tip-v4">
                 <strong>{loadingSourcePlan ? '正在带入上一份安排...' : '这页已经带入上一份安排'}</strong>
-                <p>{loadingSourcePlan ? '等一下就好，你不用重新从头填写。' : '你可以直接改场馆、日期、预算或偏好，再生成新的手册。'}</p>
+                <p>{loadingSourcePlan ? '稍等一下。' : '改一改，就能重新生成。'}</p>
               </div>
             ) : null}
           </div>
@@ -526,19 +526,19 @@ export function CreatePlanPage() {
 
         <section className="planner-signal-grid">
           <SignalCard
-            note={form.city ? '城市已锁定，可以继续精确场馆和规则。' : '先定城市，后面的场馆和交通会更准。'}
+            note={form.city ? '城市已锁定。' : '先把城市定下来。'}
             title="当前城市"
             tone="blue"
             value={form.city || '等待选择'}
           />
           <SignalCard
-            note={form.venue ? '命中系统场馆后，规则预览会持续跟上。' : '优先从系统场馆里点选，别先手填。'}
+            note={form.venue ? '规则预览会跟上。' : '优先选系统场馆。'}
             title="场馆状态"
             tone="mint"
             value={form.venue || '等待场馆'}
           />
           <SignalCard
-            note={form.supportGoal ? '你最在意的目标会直接进入最终手册。' : '先圈一个最在意的方向，手册会更像为你写。'}
+            note={form.supportGoal ? '会写进最终手册。' : '先选一个重点。'}
             title="赴约重点"
             tone="orange"
             value={form.supportGoal || '等待偏好'}
@@ -551,7 +551,7 @@ export function CreatePlanPage() {
               <div className="section-head-v3">
                 <div>
                   <p className="section-kicker-v3">强搜索面板</p>
-                  <h2>先把这次赴约的基础信息搜清楚</h2>
+                  <h2>先把基础信息定下来</h2>
                 </div>
               </div>
 
@@ -667,7 +667,7 @@ export function CreatePlanPage() {
             <div className="create-inline-tip create-inline-tip-v4">
               <strong>系统场馆优先</strong>
               <p>
-                {useCustomVenue ? '当前是手动输入模式。' : '优先选系统已有场馆，规则预览会更完整。'}{' '}
+                {useCustomVenue ? '现在是手动输入。' : '优先选系统场馆，预览会更准。'}{' '}
                 <button className="inline-link-button" onClick={() => setUseCustomVenue((current) => !current)} type="button">
                   {useCustomVenue ? '切回场馆选择' : '没有的话再手动输入'}
                 </button>
@@ -721,7 +721,7 @@ export function CreatePlanPage() {
             <div className="section-head-v3">
               <div>
                 <p className="section-kicker-v3">衣食住行票社交</p>
-                <h2>别自己打长表单，直接把最接近你的选项点出来</h2>
+                <h2>点出最像你的选项</h2>
               </div>
             </div>
 
@@ -752,10 +752,10 @@ export function CreatePlanPage() {
                 <p className="section-kicker-v3">场馆规则预览</p>
                 <h2>
                   {loadingVenueRule
-                    ? '正在替你翻这座场馆的规则...'
+                    ? '正在查这座场馆...'
                     : visibleVenuePreview
-                      ? '这座场馆最容易翻车的地方，我先替你查出来了'
-                      : '选好城市和场馆后，我会先把禁带、入口和返程提醒翻出来'}
+                      ? '这座场馆最容易踩坑的点，先给你看'
+                      : '选好城市和场馆后，这里会出现规则提醒'}
                 </h2>
               </div>
             </div>
@@ -772,7 +772,7 @@ export function CreatePlanPage() {
                   </div>
                 </article>
                 <article className="venue-preview-card">
-                  <strong>我会优先提醒你</strong>
+                  <strong>重点提醒</strong>
                   <ul className="bullet-list dreamy-list">
                     {visibleVenuePreview.entryTips.slice(0, 3).map((item) => (
                       <li key={item}>{item}</li>
@@ -790,8 +790,8 @@ export function CreatePlanPage() {
               </div>
             ) : (
               <div className="venue-preview-empty">
-                <strong>先从系统场馆里选</strong>
-                <p>优先命中系统已有场馆，后面生成出来的手册会更像一份真的能带着出门的攻略。</p>
+                <strong>优先选系统场馆</strong>
+                <p>这样生成出来会更准。</p>
               </div>
             )}
           </section>
@@ -799,8 +799,8 @@ export function CreatePlanPage() {
           <section className="panel-v3 panel-v3-light planner-submit-panel">
             <div>
               <p className="section-kicker-v3">准备好了就生成</p>
-              <h2>让系统把这次赴约整理成一份 itinerary summary + 攻略手册</h2>
-              <p className="section-subcopy-v3">完成度越高，最后那份手册就越像真正为你写的版本。</p>
+              <h2>一键生成赴约手册</h2>
+              <p className="section-subcopy-v3">填得越完整，结果越贴你。</p>
             </div>
             <div className="planner-submit-actions">
               <div className="planner-submit-badge">当前完成度 {progress}%</div>

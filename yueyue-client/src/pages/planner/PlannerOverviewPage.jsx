@@ -9,18 +9,18 @@ function buildOverallPlan(draft, moduleStatuses) {
       title: '基础骨架',
       value:
         [draft.eventName, draft.city, draft.venue].filter(Boolean).join(' · ') ||
-        '先定活动、城市和场馆，后面模块才能共用这份草稿。',
-      note: firstPending?.key === 'basic' ? '建议优先补基础信息模块。' : '基础信息已经可以支撑后续模块继续展开。',
+        '活动、城市和场馆还没定下来。',
+      note: firstPending?.key === 'basic' ? '活动、城市和场馆一清楚，后面就顺了。' : '这部分已经够用了，想先看哪块都行。',
     },
     {
       title: '到场与规则',
       value:
         draft.city && draft.venue
-          ? `${draft.city} ${draft.venue} 的规则模块可以直接查禁带、入口和交通提醒。`
-          : '还没定场馆时，先别急着看规则，避免信息太泛。',
+          ? `${draft.city} ${draft.venue} 的入口、禁带和交通提醒都能直接看到。`
+          : '场馆还没定下来，这一部分会先保持通用提醒。',
       note: draft.latestRoutePlan?.recommended
         ? `当前已有去程路线，建议 ${draft.latestRoutePlan.recommended.departureTimeRecommended || '按推荐时间'} 出发。`
-        : '补好出发地后，可以继续去路线模块确认出发时间。',
+        : '补上出发地后，就能看到建议出发时间。',
     },
     {
       title: '现场节奏',
@@ -29,11 +29,11 @@ function buildOverallPlan(draft, moduleStatuses) {
           ? [draft.ticketArea && `票区 ${draft.ticketArea}`, draft.meetupPlan && `会合 ${draft.meetupPlan}`, draft.merchPlan && `物料 ${draft.merchPlan}`]
               .filter(Boolean)
               .join(' · ')
-          : '票务、会合、物料还没整理时，先挑你最在意的一块单独解决。',
+          : '票务、会合和物料还没整理。',
       note:
         Number(draft.companions || 1) > 1 || !draft.isFirstTime
-          ? '你已经有同行或经验基础，建议把搭子 / 会合模块和票务模块一起用。'
-          : '如果一个人去，优先把会合、入口和返程节奏拆开看。',
+          ? '同行时把票务和会合一起看，会更省事。'
+          : '一个人去的话，把入口、返程和联系点想在前面更安心。',
     },
   ]
 }
@@ -51,14 +51,14 @@ export function PlannerOverviewPage() {
       <div className="planner-module-header">
         <div>
           <p className="planner-section-title">整体统筹</p>
-          <h2>不用先填大表单，直接按你的问题进入对应模块</h2>
+          <h2>把整场安排收好</h2>
           <p className="planner-module-copy">
-            现在的入口不再要求一次性把所有信息填满。你可以先解决最在意的问题，比如规则、路线、票务、搭子，再让这些模块共用同一份草稿，慢慢拼成完整赴约计划。
+            活动、路线、票务、搭子和会合，都在这一份里。
           </p>
         </div>
         <div className="planner-module-badge">
           <strong>{readyCount}/{moduleStatuses.length}</strong>
-          <span>{basic.isComplete ? '已经具备整体统筹基础' : '建议先补基础信息骨架'}</span>
+          <span>{basic.isComplete ? '已经能继续安排' : '把活动信息补齐后会更完整'}</span>
         </div>
       </div>
 
@@ -71,7 +71,7 @@ export function PlannerOverviewPage() {
                 <strong>{item.badge}</strong>
               </div>
               <span className={item.ready ? 'planner-pill' : 'planner-pill planner-pill-muted'}>
-                {item.ready ? '可直接用' : '建议先补'}
+                {item.ready ? '已就绪' : '待补充'}
               </span>
             </div>
             <p>{item.status}</p>
@@ -84,7 +84,7 @@ export function PlannerOverviewPage() {
       </div>
 
       <section className="planner-tip-card">
-        <p className="planner-section-title">这次赴约的整体计划</p>
+        <p className="planner-section-title">整体安排</p>
         <div className="planner-overall-plan">
           {overallPlan.map((item) => (
             <article className="planner-overall-step" key={item.title}>
@@ -98,10 +98,10 @@ export function PlannerOverviewPage() {
 
       <section className="planner-summary-card planner-summary-actions">
         <Link className="hero-primary-v3" to={nextModule.href}>
-          {basic.isComplete ? `先去${nextModule.title}` : '先补基础信息'}
+          {basic.isComplete ? `前往${nextModule.title}` : '前往基础信息'}
         </Link>
         <Link className="planner-secondary-link" to="/buddy">
-          先看找搭子广场
+          去看看找搭子广场
         </Link>
       </section>
     </section>

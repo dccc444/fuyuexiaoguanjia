@@ -11,13 +11,6 @@ const defaultFilters = {
   intentTag: '',
 }
 
-const sceneOptions = [
-  { value: '', label: '全部活动' },
-  { value: 'concert', label: '演唱会' },
-  { value: 'festival', label: '音乐节' },
-  { value: 'match', label: '球赛' },
-]
-
 const intentOptions = [
   { value: '', label: '全部搭子类型' },
   { value: '一起进场', label: '一起进场' },
@@ -42,6 +35,15 @@ const tagOptions = [
   { value: '都可以聊', label: '都可以聊' },
 ]
 
+const sceneTypeChips = [
+  { value: '', label: '全部' },
+  { value: 'concert', label: '演唱会' },
+  { value: 'festival', label: '音乐节' },
+  { value: 'match', label: '球赛' },
+]
+
+const quickIntentChips = ['一起进场', '一起散场', '场外会合', '拼车']
+
 function formatTimeLabel(value) {
   if (!value) {
     return '刚刚更新'
@@ -65,6 +67,19 @@ function formatContactVisibility(value) {
   }
 
   return '联系方式可控'
+}
+
+function formatSceneLabel(value) {
+  if (value === 'festival') return '音乐节'
+  if (value === 'match') return '球赛'
+  if (value === 'concert') return '演唱会'
+  return '活动'
+}
+
+function getContactActionLabel(item) {
+  if (item.contactVisibility === 'public') return '立即联系'
+  if (item.hasJoined) return '继续联系'
+  return '我也想一起'
 }
 
 export function BuddySquarePage() {
@@ -107,6 +122,7 @@ export function BuddySquarePage() {
     () => Object.values(filters).filter((value) => String(value || '').trim()).length,
     [filters]
   )
+  const selectedScene = filters.sceneType || '全部活动'
 
   function updateFilter(name, value) {
     setFilters((current) => ({ ...current, [name]: value }))
@@ -131,25 +147,62 @@ export function BuddySquarePage() {
 
   return (
     <section className="planner-module-card">
-      <div className="planner-module-header">
-        <div>
+      <div className="planner-module-header buddy-square-hero">
+        <div className="buddy-square-hero-copy">
           <p className="planner-section-title">找搭子广场</p>
-          <h2>先看有没有同场次、同城市的人在找搭子</h2>
-          <p className="planner-module-copy">
-            现在已经补齐剩余广场能力。你可以按城市、日期、场馆、活动类型、搭子类型和标签筛选，也能直接收藏感兴趣的帖子。
-          </p>
+          <h2>找同场的人</h2>
+          <p className="planner-module-copy">先筛一遍，再看同频的人。</p>
         </div>
-        <div className="planner-submit-row">
-          <Link className="planner-secondary-link" to="/my-buddy-posts">
-            我的发布
-          </Link>
+        <div className="buddy-square-hero-actions">
           <Link className="hero-primary-v3" to="/buddy/new">
-            发布需求
+            发布我的搭子邀约
+          </Link>
+          <Link className="hero-secondary-v3" to="/my-buddy-posts">
+            我的发布
           </Link>
         </div>
       </div>
 
+      <section className="buddy-square-type-row" aria-label="活动类型">
+        {sceneTypeChips.map((item) => (
+          <button
+            key={item.label}
+            className={filters.sceneType === item.value ? 'buddy-filter-chip active' : 'buddy-filter-chip'}
+            onClick={() => updateFilter('sceneType', item.value)}
+            type="button"
+          >
+            {item.label}
+          </button>
+        ))}
+      </section>
+
+      <section className="buddy-square-summary-strip">
+        <article className="buddy-summary-card">
+          <span>当前场景</span>
+          <strong>{selectedScene}</strong>
+          <p>这一类活动的人，会先显示在这里。</p>
+        </article>
+        <article className="buddy-summary-card">
+          <span>筛选状态</span>
+          <strong>{activeFilterCount} 个条件</strong>
+          <p>{activeFilterCount > 0 ? '列表已经按你的偏好刷新。' : '先逛逛广场，看到合适的人再细筛。'}</p>
+        </article>
+      </section>
+
       <section className="planner-module-form">
+        <div className="buddy-quick-chip-row" aria-label="快速筛选">
+          {quickIntentChips.map((chip) => (
+            <button
+              key={chip}
+              className={filters.intentType === chip ? 'buddy-filter-chip soft active' : 'buddy-filter-chip soft'}
+              onClick={() => updateFilter('intentType', filters.intentType === chip ? '' : chip)}
+              type="button"
+            >
+              {chip}
+            </button>
+          ))}
+        </div>
+
         <div className="planner-form-grid">
           <label className="planner-field">
             <span>城市</span>
@@ -178,16 +231,6 @@ export function BuddySquarePage() {
             />
           </label>
           <label className="planner-field">
-            <span>活动类型</span>
-            <select onChange={(event) => updateFilter('sceneType', event.target.value)} value={filters.sceneType}>
-              {sceneOptions.map((option) => (
-                <option key={option.label} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label className="planner-field">
             <span>搭子类型</span>
             <select onChange={(event) => updateFilter('intentType', event.target.value)} value={filters.intentType}>
               {intentOptions.map((option) => (
@@ -198,7 +241,7 @@ export function BuddySquarePage() {
             </select>
           </label>
           <label className="planner-field">
-            <span>需求标签</span>
+            <span>同行标签</span>
             <select onChange={(event) => updateFilter('intentTag', event.target.value)} value={filters.intentTag}>
               {tagOptions.map((option) => (
                 <option key={option.label} value={option.value}>
@@ -211,7 +254,7 @@ export function BuddySquarePage() {
 
         <div className="planner-submit-row">
           <span className="planner-submit-hint">
-            当前已启用 {activeFilterCount} 个筛选条件，列表会自动刷新。
+            已按 {activeFilterCount} 个条件筛选，列表会自动刷新。
           </span>
           <button className="ghost-button" onClick={resetFilters} type="button">
             清空筛选
@@ -236,6 +279,7 @@ export function BuddySquarePage() {
                     </p>
                   </div>
                   <div className="planner-rule-meta">
+                    <span>{formatSceneLabel(item.sceneType)}</span>
                     <span>{item.city}</span>
                     <span>{item.eventDate}</span>
                   </div>
@@ -253,12 +297,17 @@ export function BuddySquarePage() {
                     ))}
                   </div>
                 ) : null}
-                <p className="planner-module-copy">{item.content}</p>
-                <div className="planner-summary-card planner-summary-actions">
-                  <span>{item.isFirstTime ? '第一次去' : '不是第一次'}</span>
+                <p className="planner-module-copy buddy-card-copy">{item.content}</p>
+                <div className="buddy-card-meta-row">
+                  <span>{item.isFirstTime ? '第一次去' : '去过现场'}</span>
                   <span>想找 {item.companionsExpected} 人</span>
                   <span>已有 {item.joinIntentCount || 0} 人想一起</span>
                   <span>{formatContactVisibility(item.contactVisibility)}</span>
+                </div>
+                <div className="planner-summary-card planner-summary-actions buddy-card-actions">
+                  <Link className="hero-primary-v3 compact" to={`/buddy/${item.id}`}>
+                    {getContactActionLabel(item)}
+                  </Link>
                   <button
                     className="ghost-button"
                     disabled={actingId === item.id}
@@ -277,10 +326,16 @@ export function BuddySquarePage() {
         ) : (
           <section className="planner-rule-empty">
             <strong>{activeFilterCount > 0 ? '当前筛选条件下还没有匹配帖子' : '广场里还没有帖子'}</strong>
-            <p>{activeFilterCount > 0 ? '可以换一个城市、日期或搭子类型试试。' : '你可以先发第一条需求，把同场次的人吸引过来。'}</p>
+            <p>{activeFilterCount > 0 ? '换个城市、日期或搭子类型再看看。' : '还没人发帖，来发第一条吧。'}</p>
           </section>
         )
       ) : null}
+
+      <div className="buddy-square-floating-cta">
+        <Link className="hero-primary-v3" to="/buddy/new">
+          发布我的搭子邀约
+        </Link>
+      </div>
     </section>
   )
 }

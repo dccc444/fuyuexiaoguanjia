@@ -13,6 +13,7 @@ import { RulesModulePage } from './pages/planner/RulesModulePage'
 import { TravelModulePage } from './pages/planner/TravelModulePage'
 import { TicketModulePage } from './pages/planner/TicketModulePage'
 import { SocialModulePage } from './pages/planner/SocialModulePage'
+import { PlannerOverviewPage } from './pages/planner/PlannerOverviewPage'
 import { BuddySquarePage } from './pages/BuddySquarePage'
 import { BuddyPublishPage } from './pages/BuddyPublishPage'
 import { BuddyDetailPage } from './pages/BuddyDetailPage'
@@ -26,6 +27,7 @@ export default function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/create" element={<Navigate to="/planner" replace />} />
         <Route path="/planner" element={<PlannerWorkspacePage />}>
+          <Route path="overview" element={<PlannerOverviewPage />} />
           <Route index element={<BasicModulePage />} />
           <Route path="basic" element={<BasicModulePage />} />
           <Route path="rules" element={<RulesModulePage />} />
