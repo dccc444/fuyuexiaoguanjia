@@ -108,8 +108,8 @@ export function MyTripsPage() {
           <button className="hero-secondary-v3" onClick={() => setActiveFilter('全部')} type="button">
             查看全部安排
           </button>
-          <button className="hero-primary-v3" onClick={() => navigate('/create')} type="button">
-            新建赴约计划
+          <button className="hero-primary-v3" onClick={() => navigate('/planner')} type="button">
+            从模块开始
           </button>
         </div>
       </section>
@@ -144,7 +144,7 @@ export function MyTripsPage() {
       {loading ? <section className="panel-v3 panel-v3-light empty-state-v3">正在加载你的安排...</section> : null}
 
       {!loading && filteredItems.length === 0 ? (
-        <section className="panel-v3 panel-v3-light empty-state-v3">这里还没有符合当前筛选条件的安排，先去创建一份吧。</section>
+        <section className="panel-v3 panel-v3-light empty-state-v3">这里还没有符合当前筛选条件的安排，先去模块工作台补一场吧。</section>
       ) : null}
 
       {!loading && featuredTrip ? (
@@ -168,8 +168,8 @@ export function MyTripsPage() {
             <button className="hero-secondary-v3 compact" onClick={() => navigate(`/money/${featuredTrip.id}`)} type="button">
               预算记账
             </button>
-            <button className="hero-secondary-v3 compact" onClick={() => navigate(`/create?from=${featuredTrip.id}`)} type="button">
-              复制计划
+            <button className="hero-secondary-v3 compact" onClick={() => navigate(`/planner?from=${featuredTrip.id}`)} type="button">
+              按模块复制
             </button>
             <button className="ghost-button" disabled={repairingId === featuredTrip.id} onClick={() => handleRepair(featuredTrip.id)} type="button">
               {repairingId === featuredTrip.id ? '正在重生成...' : '修复文案并重生成'}
@@ -214,8 +214,8 @@ export function MyTripsPage() {
                   <button className="hero-secondary-v3 compact" onClick={() => navigate(`/money/${trip.id}`)} type="button">
                     预算记账
                   </button>
-                  <button className="hero-secondary-v3 compact" onClick={() => navigate(`/create?from=${trip.id}`)} type="button">
-                    再生成一份
+                  <button className="hero-secondary-v3 compact" onClick={() => navigate(`/planner?from=${trip.id}`)} type="button">
+                    按模块再来一份
                   </button>
                   <button className="ghost-button" disabled={repairingId === trip.id} onClick={() => handleRepair(trip.id)} type="button">
                     {repairingId === trip.id ? '重生成中...' : '修复并重生成'}

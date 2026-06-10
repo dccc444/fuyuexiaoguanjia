@@ -91,8 +91,8 @@ export function SharedBattleBookPage() {
           <h2>这是一份可以直接带着出门的赴约摘要页</h2>
           <p>这里已经把这次活动最关键的时间线、场馆提醒、衣食住行票社交重点收好了。你可以先看摘要，再决定要不要自己也生成一份。</p>
         </div>
-        <button className="hero-primary-v3 compact" onClick={() => navigate('/create')} type="button">
-          我也创建一份
+        <button className="hero-primary-v3 compact" onClick={() => navigate('/planner')} type="button">
+          我也按模块开始
         </button>
       </section>
 

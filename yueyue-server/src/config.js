@@ -8,13 +8,19 @@ const config = {
   openaiBaseUrl: process.env.OPENAI_BASE_URL || '',
   openaiModel: process.env.OPENAI_MODEL || 'gpt-5.4-mini',
   databaseUrl: process.env.DATABASE_URL || '',
+  amapWebKey: process.env.AMAP_WEB_KEY || '',
 }
 
 function isOpenAIConfigured() {
   return Boolean(config.openaiApiKey)
 }
 
+function isAmapConfigured() {
+  return Boolean(config.amapWebKey)
+}
+
 module.exports = {
   config,
+  isAmapConfigured,
   isOpenAIConfigured,
 }

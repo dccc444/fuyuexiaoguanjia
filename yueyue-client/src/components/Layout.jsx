@@ -11,24 +11,38 @@ export function Layout() {
           <span className="brand-mark">赴</span>
           <div>
             <strong>一站式赴约小管家</strong>
-            <p>把每一场期待，提前安排成更安心也更浪漫的赴约。</p>
+            <p>{isHome ? '让赴约这件事，先浪漫起来。' : '把每一场期待，提前安排成更安心也更浪漫的赴约。'}</p>
           </div>
         </NavLink>
 
-        <nav className="topnav">
-          <NavLink to="/" className={({ isActive }) => (isActive ? 'topnav-link active' : 'topnav-link')}>
-            首页
-          </NavLink>
-          <NavLink to="/create" className={({ isActive }) => (isActive ? 'topnav-link active' : 'topnav-link')}>
-            创建计划
-          </NavLink>
-          <NavLink to="/money" className={({ isActive }) => (isActive ? 'topnav-link active' : 'topnav-link')}>
-            记账分账
-          </NavLink>
-          <NavLink to="/my-trips" className={({ isActive }) => (isActive ? 'topnav-link active' : 'topnav-link')}>
-            我的安排
-          </NavLink>
-        </nav>
+        {isHome ? (
+          <nav className="topnav topnav-home-minimal">
+            <NavLink className="topnav-link topnav-link-home-minimal" to="/buddy">
+              找搭子
+            </NavLink>
+            <NavLink className="topnav-link topnav-link-home-cta" to="/planner">
+              进入模块
+            </NavLink>
+          </nav>
+        ) : (
+          <nav className="topnav">
+            <NavLink to="/" className={({ isActive }) => (isActive ? 'topnav-link active' : 'topnav-link')}>
+              首页
+            </NavLink>
+            <NavLink to="/buddy" className={({ isActive }) => (isActive ? 'topnav-link active' : 'topnav-link')}>
+              找搭子
+            </NavLink>
+            <NavLink to="/planner" className={({ isActive }) => (isActive ? 'topnav-link active' : 'topnav-link')}>
+              模块入口
+            </NavLink>
+            <NavLink to="/money" className={({ isActive }) => (isActive ? 'topnav-link active' : 'topnav-link')}>
+              记账分账
+            </NavLink>
+            <NavLink to="/my-trips" className={({ isActive }) => (isActive ? 'topnav-link active' : 'topnav-link')}>
+              我的安排
+            </NavLink>
+          </nav>
+        )}
       </header>
 
       <main className="page-shell">
