@@ -1,94 +1,53 @@
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
 
-const primaryTabs = [
-  { to: '/', label: '首页', match: (pathname) => pathname === '/' },
-  { to: '/planner', label: '规划', match: (pathname) => pathname.startsWith('/planner') || pathname.startsWith('/money') },
-  { to: '/buddy', label: '搭子', match: (pathname) => pathname.startsWith('/buddy') || pathname.startsWith('/my-buddy-posts') },
-  { to: '/my-trips', label: '我的', match: (pathname) => pathname.startsWith('/my-trips') || pathname.startsWith('/battle-books') },
-]
-
-function getPageMeta(pathname) {
-  if (pathname.startsWith('/planner')) {
-    return {
-      title: '赴约规划',
-      description: '路线、票务、搭子和预算都能慢慢收好。',
-      actionLabel: '导入',
-      actionTo: '/planner',
-    }
-  }
-
-  if (pathname.startsWith('/buddy')) {
-    return {
-      title: '找搭子',
-      description: '先看同城同场，再决定要不要发布。',
-      actionLabel: '发布',
-      actionTo: '/buddy/new',
-    }
-  }
-
-  if (pathname.startsWith('/money')) {
-    return {
-      title: '预算记账',
-      description: '默认 AA 和单笔分摊都能在手机上快速操作。',
-      actionLabel: '账本',
-      actionTo: '/money',
-    }
-  }
-
-  if (pathname.startsWith('/my-trips') || pathname.startsWith('/battle-books')) {
-    return {
-      title: '我的安排',
-      description: '活动、草稿和手册都收在这里。',
-      actionLabel: '规划',
-      actionTo: '/planner',
-    }
-  }
-
-  return {
-    title: '赴约小管家',
-    description: '让奔赴，比想象更美好。',
-    actionLabel: '开始',
-    actionTo: '/planner',
-  }
-}
-
 export function Layout() {
   const location = useLocation()
   const isHome = location.pathname === '/'
-  const pageMeta = getPageMeta(location.pathname)
 
   return (
-    <div className={isHome ? 'app-shell app-shell-home app-shell-mobile' : 'app-shell app-shell-inner app-shell-mobile'}>
-      <div className="mobile-app-frame">
-        <header className={isHome ? 'mobile-topbar mobile-topbar-home' : 'mobile-topbar'}>
-          <NavLink className="mobile-brand" to="/">
-            <span className="brand-mark">赴</span>
-            <div>
-              <strong>{pageMeta.title}</strong>
-              <p>{pageMeta.description}</p>
-            </div>
-          </NavLink>
+    <div className={isHome ? 'app-shell app-shell-home' : 'app-shell app-shell-inner'}>
+      <header className={isHome ? 'topbar topbar-home' : 'topbar topbar-inner'}>
+        <NavLink className="brand brand-inner" to="/">
+          <span className="brand-mark">赴</span>
+          <div>
+            <strong>一站式赴约小管家</strong>
+            <p>{isHome ? '让奔赴这件事，先愉快起来。' : '把每一场赴约，提前安排得更安心也更愉快。'}</p>
+          </div>
+        </NavLink>
 
-          <NavLink className="mobile-top-action" to={pageMeta.actionTo}>
-            {pageMeta.actionLabel}
-          </NavLink>
-        </header>
+        {isHome ? (
+          <nav className="topnav topnav-home-minimal">
+            <NavLink className="topnav-link topnav-link-home-minimal" to="/buddy">
+              找搭子
+            </NavLink>
+            <NavLink className="topnav-link topnav-link-home-cta" to="/planner">
+              进入模块
+            </NavLink>
+          </nav>
+        ) : (
+          <nav className="topnav">
+            <NavLink to="/" className={({ isActive }) => (isActive ? 'topnav-link active' : 'topnav-link')}>
+              首页
+            </NavLink>
+            <NavLink to="/buddy" className={({ isActive }) => (isActive ? 'topnav-link active' : 'topnav-link')}>
+              找搭子
+            </NavLink>
+            <NavLink to="/planner" className={({ isActive }) => (isActive ? 'topnav-link active' : 'topnav-link')}>
+              模块入口
+            </NavLink>
+            <NavLink to="/money" className={({ isActive }) => (isActive ? 'topnav-link active' : 'topnav-link')}>
+              记账分钱
+            </NavLink>
+            <NavLink to="/my-trips" className={({ isActive }) => (isActive ? 'topnav-link active' : 'topnav-link')}>
+              我的安排
+            </NavLink>
+          </nav>
+        )}
+      </header>
 
-        <main className="page-shell page-shell-mobile">
-          <Outlet />
-        </main>
-
-        <nav className="mobile-tabbar" aria-label="主导航">
-          {primaryTabs.map((item) => {
-            const active = item.match(location.pathname)
-            return (
-              <NavLink key={item.to} to={item.to} className={active ? 'mobile-tab-link active' : 'mobile-tab-link'}>
-                <span>{item.label}</span>
-              </NavLink>
-            )
-          })}
-        </nav>
-      </div>
+      <main className="page-shell">
+        <Outlet />
+      </main>
     </div>
   )
 }
